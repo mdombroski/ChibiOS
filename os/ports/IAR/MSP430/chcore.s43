@@ -1,0 +1,124 @@
+	module chcore_port_asm
+	
+	#include <msp430.h>
+
+/*
+ * EW430 Calling Convention:
+ *   R0 (PC)    program counter
+ *   R1 (SP)    stack pointer
+ *   R2 (SR)    status register
+ *   R3 (CG)    constant generator
+ *   R4-R11     preserved by called function
+ *   R12-R15    scratch
+ *
+ * Register Usage:
+ *   R0 (PC)    indirectly modified
+ *   R1 (SP)    modified
+ *   R2 (SR)    not directly modified
+ *   R3 (CG)    not used
+ *   R4-R11     saved & restored
+ *   R12-R14    all used
+ *   R15        not used
+ *
+ * Note that RAM in the MSP430 and MSP430X is located below 64K.
+ * Therefore 16-bit stack pointer always suffices.
+ */
+
+
+// This is the offset of p_ctx in Thread (chthreads.h)
+// recalculate after changing Thread structure.
+#define sp_offset 6
+
+
+#if __CORE__ == __430X_CORE__
+
+#define xcall calla
+#define xret  reta
+#define xpop  pop
+#define xpush push
+#define xmov  mova
+
+save_context	macro
+	pushm.a #8, R11
+	endm
+
+load_context	macro
+	popm.a #8, R11
+	endm
+
+#endif
+#if __CORE__ == __430_CORE__
+
+#define xcall call
+#define xret  ret
+#define xpop  pop
+#define xpush push
+#define xmov  mov
+
+save_context	macro
+	push.w	r11
+	push.w	r10
+	push.w	r9
+	push.w	r8
+	push.w	r7
+	push.w	r6
+	push.w	r5
+	push.w	r4
+	endm
+
+load_context	macro
+	pop.w	r4
+	pop.w	r5
+	pop.w	r6
+	pop.w	r7
+	pop.w	r8
+	pop.w	r9
+	pop.w	r10
+	pop.w	r11
+	endm
+
+#endif
+
+public port_switch
+public port_halt
+public _port_thread_start
+
+	extern chThdExit
+
+	rseg  DATA16_Z(1)
+	rseg  CODE(1)
+
+	// According to calling convention:
+	// R13 is outgoing thread
+	// R12 is incoming thread
+	// Optimised version
+port_switch:
+	save_context
+
+	mov.w SP,sp_offset(R13)	// save outgoing stack pointer
+	mov.w sp_offset(R12),SP // load incoming stack pointer
+
+	load_context
+	xret
+
+
+	// Stop processor execution
+	// - disable interrupts and enter low power mode
+port_halt:
+	dint
+_loop
+	bis.w #LPM3,SR
+	jmp _loop
+	nop
+
+
+	// Starts thread execution
+	// Optimised version
+_port_thread_start:
+	eint
+	xmov r11,r12
+	xcall r10
+	xcall #chThdExit
+
+	// End of file
+	end
