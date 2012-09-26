@@ -30,18 +30,37 @@
 #define _CHCORE_H_
 
 
+#include <io430.h>
 #include <intrinsics.h>
 
 
 #if CH_DBG_ENABLE_STACK_CHECK
-#error "option CH_DBG_ENABLE_STACK_CHECK not supported by this port"
 #endif
 
 /**
  * @brief   Enables the use of a wait state in the idle thread loop.
  */
 #ifndef ENABLE_WFI_IDLE
-#define ENABLE_WFI_IDLE                 0
+#define ENABLE_WFI_IDLE                 1
+#endif
+
+/**
+ * @brief   Selects the low power idle mode (LPM0-LPM4)
+ */
+#ifndef IDLE_LPM_BITS
+#define IDLE_LPM_BITS                   LPM1_bits
+#endif
+
+#ifdef IDLE_LPM_BITS
+#define PORT_SLEEP()      __bis_SR_register( IDLE_LPM_BITS )
+#define PORT_SLEEP_IRQ()  __bis_SR_register_on_exit( IDLE_LPM_BITS )
+#define PORT_WAKE()       __bic_SR_register( IDLE_LPM_BITS )
+#define PORT_WAKE_IRQ()   __bic_SR_register_on_exit( IDLE_LPM_BITS )
+#else
+#define PORT_SLEEP()      __no_operation()
+#define PORT_SLEEP_IRQ()
+#define PORT_WAKE()
+#define PORT_WAKE_IRQ()
 #endif
 
 /**
@@ -200,6 +219,7 @@ struct context {
   if (chSchIsPreemptionRequired())                                          \
     chSchDoReschedule();                                                    \
   dbg_check_unlock();                                                       \
+  PORT_WAKE_IRQ();                                                          \
 }
 
 #define ISRNAME(pre, id) pre##id
@@ -217,34 +237,19 @@ struct context {
  */
 #define port_init()
 
-/**
- * @brief   Kernel-lock action.
- * @details Usually this function just disables interrupts but may perform more
- *          actions.
- * @note    Implemented as global interrupt disable.
- */
-#define port_lock() __disable_interrupt()
 
-/**
- * @brief   Kernel-unlock action.
- * @details Usually this function just enables interrupts but may perform more
- *          actions.
- * @note    Implemented as global interrupt enable.
- */
-#define port_unlock() __enable_interrupt()
+//#define port_lock() __disable_interrupt()
+//#define port_unlock() __enable_interrupt()
+
 
 /**
  * @brief   Kernel-lock action from an interrupt handler.
  * @details This function is invoked before invoking I-class APIs from
- *          interrupt handlers. The implementation is architecture dependen#define PORT_IRQ_EPILOGUE() {                                           \
-  if (chSchIsPreemptionRequired())                                      \
-    chSchDoReschedule();                                                \
-}
- *          t,
+ *          interrupt handlers. The implementation is architecture dependent,
  *          in its simplest form it is void.
  * @note    This function is empty in this port.
  */
-#define port_lock_from_isr()
+#define port_lock_from_isr() port_lock()
 
 /**
  * @brief   Kernel-unlock action from an interrupt handler.
@@ -253,7 +258,7 @@ struct context {
  *          simplest form it is void.
  * @note    This function is empty in this port.
  */
-#define port_unlock_from_isr()
+#define port_unlock_from_isr() port_unlock()
 
 /**
  * @brief   Disables all the interrupt sources.
@@ -289,18 +294,18 @@ struct context {
  *          a real low power mode.
  */
 #if ENABLE_WFI_IDLE != 0
-#ifndef port_wait_for_interrupt
-#define port_wait_for_interrupt() {                                         \
-  __no_operation();
-}
-#endif
+# ifndef port_wait_for_interrupt
+#  define port_wait_for_interrupt() PORT_SLEEP()
+# endif
 #else
-#define port_wait_for_interrupt()
+# define port_wait_for_interrupt()
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+  void port_lock(void);
+  void port_unlock(void);
   void port_switch(Thread *ntp, Thread *otp);
   void port_halt(void);
   void _port_thread_start(void);

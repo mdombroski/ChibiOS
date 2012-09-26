@@ -32,6 +32,7 @@
 #include "ch.h"
 #include <intrinsics.h>
 
+
 /*
  * EW430 Calling Convention:
  *   R0 (PC)    program counter
@@ -51,17 +52,36 @@
  *   R15        not used
  *
  *
- * __IAR430_MSP430__  defined for MSP430
- * __IAR430_MSP430X__ defined for MSP430X (has 20bit addressing)
- *
  * Note that RAM in the MSP430 and MSP430X is located below 64K.
  * Therefore 16-bit stack pointer always suffices.
  */
 
-#if __CORE__ == __430X__
-# warning 430X mode
-#endif
 
+static istate_t s;
+
+/**
+ * @brief   Kernel-lock action.
+ * @details Usually this function just disables interrupts but may perform more
+ *          actions.
+ * @note    Implemented as global interrupt disable.
+ */
+void port_lock(void)
+{
+  istate_t t = __get_interrupt_state();
+  __disable_interrupt();
+  s = t;
+}
+
+/**
+ * @brief   Kernel-unlock action.
+ * @details Usually this function just enables interrupts but may perform more
+ *          actions.
+ * @note    Implemented as global interrupt enable.
+ */
+void port_unlock(void)
+{
+  __set_interrupt_state(s);
+}
 
 /**
  * @brief   Performs a context switch between two threads.

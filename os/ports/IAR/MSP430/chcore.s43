@@ -79,6 +79,8 @@ load_context	macro
 
 #endif
 
+public port_lock
+public port_unlock
 public port_switch
 public port_halt
 public _port_thread_start
@@ -87,6 +89,23 @@ public _port_thread_start
 
 	rseg  DATA16_Z(1)
 	rseg  CODE(1)
+
+// interrupt state variable
+_istate DS16 0
+
+	// Save interrupt state and then disable interrupts
+	// IRQ safe
+port_lock:
+	mov.w SR,R15
+	dint
+	nop
+	mov.w R15,&_istate
+	xret
+
+	// Restore interrupt state
+port_unlock:
+	mov.w &_istate,SR
+	xret
 
 	// According to calling convention:
 	// R13 is outgoing thread
