@@ -663,6 +663,7 @@ INPUT                  = ../docs/src \
                          ../os/ports/IAR/ARMCMx/STM32L1xx \
                          ../os/ports/IAR/ARMCMx/LPC11xx \
                          ../os/ports/IAR/ARMCMx/LPC13xx \
+                         ../os/ports/IAR/MSP430 \
                          ../os/ports/RVCT/ARMCMx \
                          ../os/ports/RVCT/ARMCMx/STM32F1xx \
                          ../os/ports/RVCT/ARMCMx/STM32L1xx \

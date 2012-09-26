@@ -52,6 +52,7 @@
   |  |  |  +--SIMIA32/  - Port files for SIMIA32 simulator architecture.
   |  |  +--IAR/         - Ports for the IAR compiler.
   |  |  |  +--ARMCMx/   - Port files for ARMCMx architectures (ARMv6/7-M).
+  |  |  |  +--MSP430/   - Port files for MSP430 architecture.
   |  |  |  +--STM8/     - Port files for STM8 architecture.
   |  |  +--RVCT/        - Ports for the Keil RVCT compiler.
   |  |  |  +--ARMCMx/   - Port files for ARMCMx architectures (ARMv6/7-M).
