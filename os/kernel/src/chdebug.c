@@ -232,7 +232,7 @@ void _trace_init(void) {
  *
  * @notapi
  */
-void dbg_trace(Thread *otp) {
+void dbg_trace(chThread *otp) {
 
   dbg_trace_buffer.tb_ptr->se_time   = chTimeNow();
   dbg_trace_buffer.tb_ptr->se_tp     = currp;

@@ -32,27 +32,27 @@
 #if CH_USE_MUTEXES || defined(__DOXYGEN__)
 
 /**
- * @brief   Mutex structure.
+ * @brief   chMutex structure.
  */
-typedef struct Mutex {
+typedef struct chMutex {
   ThreadsQueue          m_queue;    /**< @brief Queue of the threads sleeping
-                                                on this Mutex.              */
-  Thread                *m_owner;   /**< @brief Owner @p Thread pointer or
+                                                on this chMutex.              */
+  chThread                *m_owner;   /**< @brief Owner @p chThread pointer or
                                                 @p NULL.                    */
-  struct Mutex          *m_next;    /**< @brief Next @p Mutex into an
+  struct chMutex          *m_next;    /**< @brief Next @p chMutex into an
                                                 owner-list or @p NULL.      */
-} Mutex;
+} chMutex;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void chMtxInit(Mutex *mp);
-  void chMtxLock(Mutex *mp);
-  void chMtxLockS(Mutex *mp);
-  bool_t chMtxTryLock(Mutex *mp);
-  bool_t chMtxTryLockS(Mutex *mp);
-  Mutex *chMtxUnlock(void);
-  Mutex *chMtxUnlockS(void);
+  void chMtxInit(chMutex *mp);
+  void chMtxLock(chMutex *mp);
+  void chMtxLockS(chMutex *mp);
+  bool_t chMtxTryLock(chMutex *mp);
+  bool_t chMtxTryLockS(chMutex *mp);
+  chMutex *chMtxUnlock(void);
+  chMutex *chMtxUnlockS(void);
   void chMtxUnlockAll(void);
 #ifdef __cplusplus
 }
@@ -74,7 +74,7 @@ extern "C" {
  *
  * @param[in] name      the name of the mutex variable
  */
-#define MUTEX_DECL(name) Mutex name = _MUTEX_DATA(name)
+#define MUTEX_DECL(name) chMutex name = _MUTEX_DATA(name)
 
 /**
  * @name    Macro Functions

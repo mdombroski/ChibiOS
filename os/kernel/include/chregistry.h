@@ -41,7 +41,7 @@ typedef struct {
   uint16_t  ch_version;             /**< @brief Encoded ChibiOS/RT version. */
   uint8_t   ch_ptrsize;             /**< @brief Size of a pointer.          */
   uint8_t   ch_timesize;            /**< @brief Size of a @p systime_t.     */
-  uint8_t   ch_threadsize;          /**< @brief Size of a @p Thread struct. */
+  uint8_t   ch_threadsize;          /**< @brief Size of a @p chThread struct. */
   uint8_t   cf_off_prio;            /**< @brief Offset of @p p_prio field.  */
   uint8_t   cf_off_ctx;             /**< @brief Offset of @p p_ctx field.   */
   uint8_t   cf_off_newer;           /**< @brief Offset of @p p_newer field. */
@@ -79,7 +79,7 @@ typedef struct {
  *
  * @param[in] tp        pointer to the thread
  *
- * @return              Thread name as a zero terminated string.
+ * @return              chThread name as a zero terminated string.
  * @retval NULL         if the thread name has not been set.
  */
 #define chRegGetThreadName(tp) ((tp)->p_name)
@@ -108,7 +108,7 @@ typedef struct {
  * @param[in] tp        thread to add to the registry
  */
 #define REG_INSERT(tp) {                                                    \
-  (tp)->p_newer = (Thread *)&rlist;                                         \
+  (tp)->p_newer = (chThread *)&rlist;                                         \
   (tp)->p_older = rlist.r_older;                                            \
   (tp)->p_older->p_newer = rlist.r_older = (tp);                            \
 }
@@ -117,8 +117,8 @@ typedef struct {
 extern "C" {
 #endif
   extern ROMCONST chdebug_t ch_debug;
-  Thread *chRegFirstThread(void);
-  Thread *chRegNextThread(Thread *tp);
+  chThread *chRegFirstThread(void);
+  chThread *chRegNextThread(chThread *tp);
 #ifdef __cplusplus
 }
 #endif

@@ -48,17 +48,17 @@
 typedef int32_t         bool_t;
 
 /**
- * @brief   Thread mode flags, uint8_t is ok.
+ * @brief   chThread mode flags, uint8_t is ok.
  */
 typedef uint8_t         tmode_t;
 
 /**
- * @brief   Thread state, uint8_t is ok.
+ * @brief   chThread state, uint8_t is ok.
  */
 typedef uint8_t         tstate_t;
 
 /**
- * @brief   Thread references counter, uint8_t is ok.
+ * @brief   chThread references counter, uint8_t is ok.
  */
 typedef uint8_t         trefs_t;
 

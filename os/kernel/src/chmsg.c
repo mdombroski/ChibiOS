@@ -40,7 +40,7 @@
  * @pre     In order to use the message APIs the @p CH_USE_MESSAGES option
  *          must be enabled in @p chconf.h.
  * @post    Enabling messages requires 6-12 (depending on the architecture)
- *          extra bytes in the @p Thread structure.
+ *          extra bytes in the @p chThread structure.
  * @{
  */
 
@@ -65,8 +65,8 @@
  *
  * @api
  */
-msg_t chMsgSend(Thread *tp, msg_t msg) {
-  Thread *ctp = currp;
+msg_t chMsgSend(chThread *tp, msg_t msg) {
+  chThread *ctp = currp;
 
   chDbgCheck(tp != NULL, "chMsgSend");
 
@@ -94,8 +94,8 @@ msg_t chMsgSend(Thread *tp, msg_t msg) {
  *
  * @api
  */
-msg_t chMsgSendTimeout(Thread *tp, msg_t msg, systime_t time) {
-  Thread *ctp = currp;
+msg_t chMsgSendTimeout(chThread *tp, msg_t msg, systime_t time) {
+  chThread *ctp = currp;
 
   chDbgCheck(tp != NULL, "chMsgSend");
 
@@ -125,7 +125,7 @@ msg_t chMsgSendTimeout(Thread *tp, msg_t msg, systime_t time) {
  * @api
  */
 msg_t chMsgWait(void) {
-  Thread *tp;
+  chThread *tp;
 
   chSysLock();
   if (!chMsgIsPendingI(currp))
@@ -155,7 +155,7 @@ msg_t chMsgWait(void) {
  * @api
  */
 msg_t chMsgWaitTimeout(systime_t time) {
-  Thread *tp = 0;
+  chThread *tp = 0;
   msg_t m = RDY_OK;
 
   chSysLock();
@@ -184,7 +184,7 @@ msg_t chMsgWaitTimeout(systime_t time) {
  * @api
  */
 void chMsgRelease(msg_t msg) {
-  Thread *tp = 0;
+  chThread *tp = 0;
 
   chSysLock();
   tp = fifo_remove(&currp->p_msgqueue);

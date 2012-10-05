@@ -67,7 +67,7 @@ void port_halt(void) {
  * @param[in] ntp       the thread to be switched in
  * @param[in] otp       the thread to be switched out
  */
-void port_switch(Thread *ntp, Thread *otp) {
+void port_switch(chThread *ntp, chThread *otp) {
 
   (void)otp;
   (void)ntp;
@@ -98,10 +98,10 @@ void port_switch(Thread *ntp, Thread *otp) {
 void _port_thread_start(void) {
 
   chSysUnlock();
-  asm ("mr          %r3, %r31");        /* Thread parameter.                */
+  asm ("mr          %r3, %r31");        /* chThread parameter.                */
   asm ("mtctr       %r30");
   asm ("bctrl");                        /* Invoke thread function.          */
-  asm ("bl          chThdExit");        /* Thread termination on exit.      */
+  asm ("bl          chThdExit");        /* chThread termination on exit.      */
 }
 
 /** @} */

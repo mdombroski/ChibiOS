@@ -54,13 +54,13 @@
 #if CH_USE_SEMAPHORES || defined(__DOXYGEN__)
 
 /**
- * @extends Semaphore
+ * @extends chSemaphore
  *
  * @brief   Binary semaphore type.
  */
 typedef struct  {
-  Semaphore             bs_sem;
-} BinarySemaphore;
+  chSemaphore             bs_sem;
+} chBinarySemaphore;
 
 /**
  * @brief   Data part of a static semaphore initializer.
@@ -82,7 +82,7 @@ typedef struct  {
  * @param[in] taken     the semaphore initial state
  */
 #define BSEMAPHORE_DECL(name, taken)                                        \
-  BinarySemaphore name = _BSEMAPHORE_DATA(name, taken)
+  chBinarySemaphore name = _BSEMAPHORE_DATA(name, taken)
 
 /**
  * @name    Macro Functions
@@ -91,7 +91,7 @@ typedef struct  {
 /**
  * @brief   Initializes a binary semaphore.
  *
- * @param[out] bsp      pointer to a @p BinarySemaphore structure
+ * @param[out] bsp      pointer to a @p chBinarySemaphore structure
  * @param[in] taken     initial state of the binary semaphore:
  *                      - @a FALSE, the initial state is not taken.
  *                      - @a TRUE, the initial state is taken.
@@ -104,7 +104,7 @@ typedef struct  {
 /**
  * @brief   Wait operation on the binary semaphore.
  *
- * @param[in] bsp       pointer to a @p BinarySemaphore structure
+ * @param[in] bsp       pointer to a @p chBinarySemaphore structure
  * @return              A message specifying how the invoking thread has been
  *                      released from the semaphore.
  * @retval RDY_OK       if the binary semaphore has been successfully taken.
@@ -118,7 +118,7 @@ typedef struct  {
 /**
  * @brief   Wait operation on the binary semaphore.
  *
- * @param[in] bsp       pointer to a @p BinarySemaphore structure
+ * @param[in] bsp       pointer to a @p chBinarySemaphore structure
  * @return              A message specifying how the invoking thread has been
  *                      released from the semaphore.
  * @retval RDY_OK       if the binary semaphore has been successfully taken.
@@ -132,7 +132,7 @@ typedef struct  {
 /**
  * @brief   Wait operation on the binary semaphore.
  *
- * @param[in] bsp       pointer to a @p BinarySemaphore structure
+ * @param[in] bsp       pointer to a @p chBinarySemaphore structure
  * @param[in] time      the number of ticks before the operation timeouts,
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
@@ -153,7 +153,7 @@ typedef struct  {
 /**
  * @brief   Wait operation on the binary semaphore.
  *
- * @param[in] bsp       pointer to a @p BinarySemaphore structure
+ * @param[in] bsp       pointer to a @p chBinarySemaphore structure
  * @param[in] time      the number of ticks before the operation timeouts,
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
@@ -177,7 +177,7 @@ typedef struct  {
  *          rather than a signal because the @p bsemWait() will return
  *          @p RDY_RESET instead of @p RDY_OK.
  *
- * @param[in] bsp       pointer to a @p BinarySemaphore structure
+ * @param[in] bsp       pointer to a @p chBinarySemaphore structure
  * @param[in] taken     new state of the binary semaphore
  *                      - @a FALSE, the new state is not taken.
  *                      - @a TRUE, the new state is taken.
@@ -194,7 +194,7 @@ typedef struct  {
  *          @p RDY_RESET instead of @p RDY_OK.
  * @note    This function does not reschedule.
  *
- * @param[in] bsp       pointer to a @p BinarySemaphore structure
+ * @param[in] bsp       pointer to a @p chBinarySemaphore structure
  * @param[in] taken     new state of the binary semaphore
  *                      - @a FALSE, the new state is not taken.
  *                      - @a TRUE, the new state is taken.
@@ -207,7 +207,7 @@ typedef struct  {
 /**
  * @brief   Performs a signal operation on a binary semaphore.
  *
- * @param[in] bsp       pointer to a @p BinarySemaphore structure
+ * @param[in] bsp       pointer to a @p chBinarySemaphore structure
  *
  * @api
  */
@@ -222,7 +222,7 @@ typedef struct  {
  * @brief   Performs a signal operation on a binary semaphore.
  * @note    This function does not reschedule.
  *
- * @param[in] bsp       pointer to a @p BinarySemaphore structure
+ * @param[in] bsp       pointer to a @p chBinarySemaphore structure
  *
  * @iclass
  */
@@ -234,7 +234,7 @@ typedef struct  {
 /**
  * @brief   Returns the binary semaphore current state.
  *
- * @param[in] bsp       pointer to a @p BinarySemaphore structure
+ * @param[in] bsp       pointer to a @p chBinarySemaphore structure
  * @return              The binary semaphore current state.
  * @retval FALSE        if the binary semaphore is not taken.
  * @retval TRUE         if the binary semaphore is taken.

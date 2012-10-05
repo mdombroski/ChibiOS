@@ -47,14 +47,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  Thread *chThdAddRef(Thread *tp);
-  void chThdRelease(Thread *tp);
+  chThread *chThdAddRef(chThread *tp);
+  void chThdRelease(chThread *tp);
 #if CH_USE_HEAP
-  Thread *chThdCreateFromHeap(MemoryHeap *heapp, size_t size,
+  chThread *chThdCreateFromHeap(MemoryHeap *heapp, size_t size,
                               tprio_t prio, tfunc_t pf, void *arg);
 #endif
 #if CH_USE_MEMPOOLS
-  Thread *chThdCreateFromMemoryPool(MemoryPool *mp, tprio_t prio,
+  chThread *chThdCreateFromMemoryPool(MemoryPool *mp, tprio_t prio,
                                     tfunc_t pf, void *arg);
 #endif
 #ifdef __cplusplus

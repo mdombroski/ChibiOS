@@ -31,58 +31,58 @@
 /* If the performance code path has been chosen then all the following
    functions are inlined into the various kernel modules.*/
 #if CH_OPTIMIZE_SPEED
-static INLINE void prio_insert(Thread *tp, ThreadsQueue *tqp) {
+static INLINE void prio_insert(chThread *tp, ThreadsQueue *tqp) {
 
-  Thread *cp = (Thread *)tqp;
+  chThread *cp = (chThread *)tqp;
   do {
     cp = cp->p_next;
-  } while ((cp != (Thread *)tqp) && (cp->p_prio >= tp->p_prio));
+  } while ((cp != (chThread *)tqp) && (cp->p_prio >= tp->p_prio));
   tp->p_next = cp;
   tp->p_prev = cp->p_prev;
   tp->p_prev->p_next = cp->p_prev = tp;
 }
 
-static INLINE void queue_insert(Thread *tp, ThreadsQueue *tqp) {
+static INLINE void queue_insert(chThread *tp, ThreadsQueue *tqp) {
 
-  tp->p_next = (Thread *)tqp;
+  tp->p_next = (chThread *)tqp;
   tp->p_prev = tqp->p_prev;
   tp->p_prev->p_next = tqp->p_prev = tp;
 }
 
-static INLINE Thread *fifo_peek(ThreadsQueue *tqp) {
+static INLINE chThread *fifo_peek(ThreadsQueue *tqp) {
   return tqp->p_next;
 }
 
-static INLINE Thread *fifo_remove(ThreadsQueue *tqp) {
+static INLINE chThread *fifo_remove(ThreadsQueue *tqp) {
   chThread *tp = tqp->p_next;
 
-  (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+  (tqp->p_next = tp->p_next)->p_prev = (chThread *)tqp;
   return tp;
 }
 
-static INLINE Thread *lifo_remove(ThreadsQueue *tqp) {
-  Thread *tp = tqp->p_prev;
+static INLINE chThread *lifo_remove(ThreadsQueue *tqp) {
+  chThread *tp = tqp->p_prev;
 
-  (tqp->p_prev = tp->p_prev)->p_next = (Thread *)tqp;
+  (tqp->p_prev = tp->p_prev)->p_next = (chThread *)tqp;
   return tp;
 }
 
-static INLINE Thread *dequeue(Thread *tp) {
+static INLINE chThread *dequeue(chThread *tp) {
 
   tp->p_prev->p_next = tp->p_next;
   tp->p_next->p_prev = tp->p_prev;
   return tp;
 }
 
-static INLINE void list_insert(Thread *tp, ThreadsList *tlp) {
+static INLINE void list_insert(chThread *tp, ThreadsList *tlp) {
 
   tp->p_next = tlp->p_next;
   tlp->p_next = tp;
 }
 
-static INLINE Thread *list_remove(ThreadsList *tlp) {
+static INLINE chThread *list_remove(ThreadsList *tlp) {
 
-  Thread *tp = tlp->p_next;
+  chThread *tp = tlp->p_next;
   tlp->p_next = tp->p_next;
   return tp;
 }

@@ -66,7 +66,7 @@
  * @param[in] ntp       the thread to be switched in
  * @param[in] otp       the thread to be switched out
  */
-void _port_switch(Thread *ntp, Thread *otp) {
+void _port_switch(chThread *ntp, chThread *otp) {
   /* save outgoing execution state */
 #if __CORE__ == __430X__
   asm( "pushm.a #8,R11" );
@@ -83,7 +83,7 @@ void _port_switch(Thread *ntp, Thread *otp) {
 
   /* save outgoing stack pointer */
 #if CH_OPTIMIZE_SPEED
-  /* IMPORTANT: if compiler ABI changes, or if struct Thread changes,
+  /* IMPORTANT: if compiler ABI changes, or if struct chThread changes,
    * this will need to be updated. */
   asm( "mov.w SP,0x6(R13)" );
 #else

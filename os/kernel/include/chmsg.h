@@ -41,14 +41,14 @@
  * @iclass
  */
 #define chMsgIsPendingI(tp) \
-        ((tp)->p_msgqueue.p_next != (Thread *)&(tp)->p_msgqueue)
+        ((tp)->p_msgqueue.p_next != (chThread *)&(tp)->p_msgqueue)
 /** @} */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-  msg_t chMsgSend(Thread *tp, msg_t msg);
-  msg_t chMsgSendTimeout(Thread *tp, msg_t msg, systime_t time);
+  msg_t chMsgSend(chThread *tp, msg_t msg);
+  msg_t chMsgSendTimeout(chThread *tp, msg_t msg, systime_t time);
   msg_t chMsgWait(void);
   msg_t chMsgWaitTimeout(systime_t time);
   void chMsgRelease(msg_t msg);

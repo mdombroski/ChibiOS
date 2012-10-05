@@ -197,7 +197,7 @@ struct intctx {
 #endif /* !defined(__DOXYGEN__) */
 
 /**
- * @brief   Platform dependent part of the @p Thread structure.
+ * @brief   Platform dependent part of the @p chThread structure.
  * @details In this port the structure just holds a pointer to the @p intctx
  *          structure representing the stack pointer at context switch time.
  */
@@ -227,7 +227,7 @@ struct context {
 /**
  * @brief   Computes the thread working area global size.
  */
-#define THD_WA_SIZE(n) STACK_ALIGN(sizeof(Thread) +                         \
+#define THD_WA_SIZE(n) STACK_ALIGN(sizeof(chThread) +                         \
                                    sizeof(struct intctx) +                  \
                                    sizeof(struct extctx) +                  \
                                    (n) + (PORT_INT_REQUIRED_STACK))
@@ -366,7 +366,7 @@ extern "C" {
   void _port_irq_epilogue(regarm_t lr);
   void _port_switch_from_isr(void);
   void _port_exit_from_isr(void);
-  void _port_switch(Thread *ntp, Thread *otp);
+  void _port_switch(chThread *ntp, chThread *otp);
   void _port_thread_start(void);
 #ifdef __cplusplus
 }

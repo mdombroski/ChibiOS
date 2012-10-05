@@ -91,11 +91,11 @@ typedef struct {
   struct context        r_ctx;      /**< @brief Not used, present because
                                                 offsets.                    */
 #if CH_USE_REGISTRY || defined(__DOXYGEN__)
-  Thread                *r_newer;   /**< @brief Newer registry element.     */
-  Thread                *r_older;   /**< @brief Older registry element.     */
+  chThread                *r_newer;   /**< @brief Newer registry element.     */
+  chThread                *r_older;   /**< @brief Older registry element.     */
 #endif
-  /* End of the fields shared with the Thread structure.*/
-  Thread                *r_current; /**< @brief The currently running
+  /* End of the fields shared with the chThread structure.*/
+  chThread                *r_current; /**< @brief The currently running
                                                 thread.                     */
 } ReadyList;
 #endif /* !defined(PORT_OPTIMIZED_READYLIST_STRUCT) */
@@ -134,7 +134,7 @@ extern "C" {
 #endif
   void _scheduler_init(void);
 #if !defined(PORT_OPTIMIZED_READYI)
-  Thread *chSchReadyI(Thread *tp);
+  chThread *chSchReadyI(chThread *tp);
 #endif
 #if !defined(PORT_OPTIMIZED_GOSLEEPS)
   void chSchGoSleepS(tstate_t newstate);
@@ -143,7 +143,7 @@ extern "C" {
   msg_t chSchGoSleepTimeoutS(tstate_t newstate, systime_t time);
 #endif
 #if !defined(PORT_OPTIMIZED_WAKEUPS)
-  void chSchWakeupS(Thread *tp, msg_t msg);
+  void chSchWakeupS(chThread *tp, msg_t msg);
 #endif
 #if !defined(PORT_OPTIMIZED_RESCHEDULES)
   void chSchRescheduleS(void);

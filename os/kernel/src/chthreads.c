@@ -66,7 +66,7 @@
  *
  * @notapi
  */
-Thread *_thread_init(Thread *tp, tprio_t prio) {
+chThread *_thread_init(chThread *tp, tprio_t prio) {
 
   tp->p_prio = prio;
   tp->p_state = THD_STATE_SUSPENDED;
@@ -142,15 +142,15 @@ void _thread_memfill(uint8_t *startp, uint8_t *endp, uint8_t v) {
  * @param[in] pf        the thread function
  * @param[in] arg       an argument passed to the thread function. It can be
  *                      @p NULL.
- * @return              The pointer to the @p Thread structure allocated for
+ * @return              The pointer to the @p chThread structure allocated for
  *                      the thread into the working space area.
  *
  * @iclass
  */
-Thread *chThdCreateI(void *wsp, size_t size,
+chThread *chThdCreateI(void *wsp, size_t size,
                      tprio_t prio, tfunc_t pf, void *arg) {
-  /* Thread structure is layed out in the lower part of the thread workspace.*/
-  Thread *tp = wsp;
+  /* chThread structure is layed out in the lower part of the thread workspace.*/
+  chThread *tp = wsp;
 
   chDbgCheckClassI();
 
@@ -172,20 +172,20 @@ Thread *chThdCreateI(void *wsp, size_t size,
  * @param[in] pf        the thread function
  * @param[in] arg       an argument passed to the thread function. It can be
  *                      @p NULL.
- * @return              The pointer to the @p Thread structure allocated for
+ * @return              The pointer to the @p chThread structure allocated for
  *                      the thread into the working space area.
  *
  * @api
  */
-Thread *chThdCreateStatic(void *wsp, size_t size,
+chThread *chThdCreateStatic(void *wsp, size_t size,
                           tprio_t prio, tfunc_t pf, void *arg) {
-  Thread *tp;
+  chThread *tp;
   
 #if CH_DBG_FILL_THREADS
   _thread_memfill((uint8_t *)wsp,
-                  (uint8_t *)wsp + sizeof(Thread),
+                  (uint8_t *)wsp + sizeof(chThread),
                   CH_THREAD_FILL_VALUE);
-  _thread_memfill((uint8_t *)wsp + sizeof(Thread),
+  _thread_memfill((uint8_t *)wsp + sizeof(chThread),
                   (uint8_t *)wsp + size,
                   CH_STACK_FILL_VALUE);
 #endif
@@ -240,7 +240,7 @@ tprio_t chThdSetPriority(tprio_t newprio) {
  *
  * @api
  */
-Thread *chThdResume(Thread *tp) {
+chThread *chThdResume(chThread *tp) {
 
   chSysLock();
   chDbgAssert(tp->p_state == THD_STATE_SUSPENDED,
@@ -263,7 +263,7 @@ Thread *chThdResume(Thread *tp) {
  *
  * @api
  */
-void chThdTerminate(Thread *tp) {
+void chThdTerminate(chThread *tp) {
 
   chSysLock();
   tp->p_flags |= THD_TERMINATE;
@@ -357,7 +357,7 @@ void chThdExit(msg_t msg) {
  * @sclass
  */
 void chThdExitS(msg_t msg) {
-  Thread *tp = currp;
+  chThread *tp = currp;
 
   tp->p_u.exitcode = msg;
 #if defined(THREAD_EXT_EXIT_HOOK)
@@ -399,7 +399,7 @@ void chThdExitS(msg_t msg) {
  * @pre     The configuration option @p CH_USE_WAITEXIT must be enabled in
  *          order to use this function.
  * @post    Enabling @p chThdWait() requires 2-4 (depending on the
- *          architecture) extra bytes in the @p Thread structure.
+ *          architecture) extra bytes in the @p chThread structure.
  * @post    After invoking @p chThdWait() the thread pointer becomes invalid
  *          and must not be used as parameter for further system calls.
  * @note    If @p CH_USE_DYNAMIC is not specified this function just waits for
@@ -410,7 +410,7 @@ void chThdExitS(msg_t msg) {
  *
  * @api
  */
-msg_t chThdWait(Thread *tp) {
+msg_t chThdWait(chThread *tp) {
   msg_t msg;
 
   chDbgCheck(tp != NULL, "chThdWait");

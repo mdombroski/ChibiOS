@@ -223,7 +223,7 @@ struct intctx {
 };
 
 /**
- * @brief   Platform dependent part of the @p Thread structure.
+ * @brief   Platform dependent part of the @p chThread structure.
  * @details This structure usually contains just the saved stack pointer
  *          defined as a pointer to a @p intctx structure.
  */
@@ -275,7 +275,7 @@ struct context {
 /**
  * @brief   Computes the thread working area global size.
  */
-#define THD_WA_SIZE(n) STACK_ALIGN(sizeof(Thread) +                         \
+#define THD_WA_SIZE(n) STACK_ALIGN(sizeof(chThread) +                         \
                                    sizeof(struct intctx) +                  \
                                    sizeof(struct extctx) +                  \
                                    (n) + (PORT_INT_REQUIRED_STACK))
@@ -372,7 +372,7 @@ extern "C" {
 #endif
   void port_init(void);
   void port_halt(void);
-  void port_switch(Thread *ntp, Thread *otp);
+  void port_switch(chThread *ntp, chThread *otp);
   void _port_thread_start(void);
 #ifdef __cplusplus
 }

@@ -119,7 +119,7 @@ struct intctx {
 };
 
 /**
- * @brief   Platform dependent part of the @p Thread structure.
+ * @brief   Platform dependent part of the @p chThread structure.
  * @details This structure usually contains just the saved stack pointer
  *          defined as a pointer to a @p intctx structure.
  */
@@ -183,7 +183,7 @@ struct stm8_startctx {
 /**
  * @brief   Computes the thread working area global size.
  */
-#define THD_WA_SIZE(n) STACK_ALIGN(sizeof(Thread) +                         \
+#define THD_WA_SIZE(n) STACK_ALIGN(sizeof(chThread) +                         \
                                    (sizeof(struct intctx) - 1) +            \
                                    (sizeof(struct extctx) - 1) +            \
                                    (n) + (PORT_INT_REQUIRED_STACK))
@@ -296,7 +296,7 @@ struct stm8_startctx {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void _port_switch(Thread *otp);
+  void _port_switch(chThread *otp);
   void _port_thread_start(void);
   void port_halt(void);
 #ifdef __cplusplus
@@ -314,12 +314,12 @@ extern "C" {
 typedef struct {
   ThreadsQueue          r_queue;
   tprio_t               r_prio;
-  Thread                *r_current;
+  chThread                *r_current;
 #if CH_USE_REGISTRY
-  Thread                *r_newer;
-  Thread                *r_older;
+  chThread                *r_newer;
+  chThread                *r_older;
 #endif
-  /* End of the fields shared with the Thread structure.*/
+  /* End of the fields shared with the chThread structure.*/
 #if CH_TIME_QUANTUM > 0
   cnt_t                 r_preempt;
 #endif

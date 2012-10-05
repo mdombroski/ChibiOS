@@ -132,7 +132,7 @@ struct intctx {
 };
 
 /**
- * @brief   Platform dependent part of the @p Thread structure.
+ * @brief   Platform dependent part of the @p chThread structure.
  * @details In the AVR port this structure just holds a pointer to the
  *          @p intctx structure representing the stack pointer at the time
  *          of the context switch.
@@ -189,7 +189,7 @@ struct context {
 /**
  * @brief   Computes the thread working area global size.
  */
-#define THD_WA_SIZE(n) STACK_ALIGN(sizeof(Thread) +                         \
+#define THD_WA_SIZE(n) STACK_ALIGN(sizeof(chThread) +                         \
                                    (sizeof(struct intctx) - 1) +            \
                                    (sizeof(struct extctx) - 1) +            \
                                    (n) + (PORT_INT_REQUIRED_STACK))
@@ -313,7 +313,7 @@ struct context {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void port_switch(Thread *ntp, Thread *otp);
+  void port_switch(chThread *ntp, chThread *otp);
   void port_halt(void);
   void _port_thread_start(void);
 #ifdef __cplusplus

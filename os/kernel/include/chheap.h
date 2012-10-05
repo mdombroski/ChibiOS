@@ -63,9 +63,9 @@ struct memory_heap {
                                                 this heap.                  */
   union heap_header     h_free;     /**< @brief Free blocks list header.    */
 #if CH_USE_MUTEXES
-  Mutex                 h_mtx;      /**< @brief Heap access mutex.          */
+  chMutex                 h_mtx;      /**< @brief Heap access mutex.          */
 #else
-  Semaphore             h_sem;      /**< @brief Heap access semaphore.      */
+  chSemaphore             h_sem;      /**< @brief Heap access semaphore.      */
 #endif
 };
 

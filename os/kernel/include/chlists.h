@@ -20,7 +20,7 @@
 
 /**
  * @file    chlists.h
- * @brief   Thread queues/lists macros and structures.
+ * @brief   chThread queues/lists macros and structures.
  * @note    All the macros present in this module, while public, are not
  *          an OS API and should not be directly used in the user applications
  *          code.
@@ -32,21 +32,21 @@
 #ifndef _CHLISTS_H_
 #define _CHLISTS_H_
 
-typedef struct Thread Thread;
+typedef struct chThread chThread;
 
 /**
  * @brief   Threads queue initialization.
  *
  * @notapi
  */
-#define queue_init(tqp) ((tqp)->p_next = (tqp)->p_prev = (Thread *)(tqp));
+#define queue_init(tqp) ((tqp)->p_next = (tqp)->p_prev = (chThread *)(tqp));
 
 /**
  * @brief   Threads list initialization.
  *
  * @notapi
  */
-#define list_init(tlp) ((tlp)->p_next = (Thread *)(tlp))
+#define list_init(tlp) ((tlp)->p_next = (chThread *)(tlp))
 
 /**
  * @brief   Evaluates to @p TRUE if the specified threads queue or list is
@@ -54,7 +54,7 @@ typedef struct Thread Thread;
  *
  * @notapi
  */
-#define isempty(p)      ((p)->p_next == (Thread *)(p))
+#define isempty(p)      ((p)->p_next == (chThread *)(p))
 
 /**
  * @brief   Evaluates to @p TRUE if the specified threads queue or list is
@@ -62,7 +62,7 @@ typedef struct Thread Thread;
  *
  * @notapi
  */
-#define notempty(p)     ((p)->p_next != (Thread *)(p))
+#define notempty(p)     ((p)->p_next != (chThread *)(p))
 
 /**
  * @brief   Data part of a static threads queue initializer.
@@ -71,7 +71,7 @@ typedef struct Thread Thread;
  *
  * @param[in] name      the name of the threads queue variable
  */
-#define _THREADSQUEUE_DATA(name) {(Thread *)&name, (Thread *)&name}
+#define _THREADSQUEUE_DATA(name) {(chThread *)&name, (chThread *)&name}
 
 /**
  * @brief   Static threads queue initializer.
@@ -88,9 +88,9 @@ typedef struct Thread Thread;
  * @brief   Generic threads bidirectional linked list header and element.
  */
 typedef struct {
-  Thread                *p_next;        /**< First @p Thread in the queue, or
+  chThread                *p_next;        /**< First @p chThread in the queue, or
                                              @p ThreadQueue when empty.     */
-  Thread                *p_prev;        /**< Last @p Thread in the queue, or
+  chThread                *p_prev;        /**< Last @p chThread in the queue, or
                                              @p ThreadQueue when empty.     */
 } ThreadsQueue;
 
@@ -99,7 +99,7 @@ typedef struct {
  */
 typedef struct {
 
-  Thread            *p_next;            /**< Last pushed @p Thread on the stack
+  chThread            *p_next;            /**< Last pushed @p chThread on the stack
                                              list, or pointer to itself if
                                              empty.                         */
 } ThreadsList;
@@ -109,14 +109,14 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void prio_insert(Thread *tp, ThreadsQueue *tqp);
-  void queue_insert(Thread *tp, ThreadsQueue *tqp);
-  Thread *fifo_peek(ThreadsQueue *tqp);
-  Thread *fifo_remove(ThreadsQueue *tqp);
-  Thread *lifo_remove(ThreadsQueue *tqp);
-  Thread *dequeue(Thread *tp);
-  void list_insert(Thread *tp, ThreadsList *tlp);
-  Thread *list_remove(ThreadsList *tlp);
+  void prio_insert(chThread *tp, ThreadsQueue *tqp);
+  void queue_insert(chThread *tp, ThreadsQueue *tqp);
+  chThread *fifo_peek(ThreadsQueue *tqp);
+  chThread *fifo_remove(ThreadsQueue *tqp);
+  chThread *lifo_remove(ThreadsQueue *tqp);
+  chThread *dequeue(chThread *tp);
+  void list_insert(chThread *tp, ThreadsList *tlp);
+  chThread *list_remove(ThreadsList *tlp);
 #ifdef __cplusplus
 }
 #endif

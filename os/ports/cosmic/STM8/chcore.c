@@ -35,7 +35,7 @@
  *
  * @param otp   the thread to be switched out
  */
-void _port_switch(Thread *otp) {
+void _port_switch(chThread *otp) {
 
   _asm("        xref    _rlist          \n"
        "        ldw     y,sp            \n"

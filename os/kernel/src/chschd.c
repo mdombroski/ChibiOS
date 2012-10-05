@@ -50,7 +50,7 @@ void _scheduler_init(void) {
   queue_init(&rlist.r_queue);
   rlist.r_prio = NOPRIO;
 #if CH_USE_REGISTRY
-  rlist.r_newer = rlist.r_older = (Thread *)&rlist;
+  rlist.r_newer = rlist.r_older = (chThread *)&rlist;
 #endif
 }
 
@@ -71,8 +71,8 @@ void _scheduler_init(void) {
  * @iclass
  */
 #if !defined(PORT_OPTIMIZED_READYI) || defined(__DOXYGEN__)
-Thread *chSchReadyI(Thread *tp) {
-  Thread *cp;
+chThread *chSchReadyI(chThread *tp) {
+  chThread *cp;
 
   chDbgCheckClassI();
 
@@ -83,7 +83,7 @@ Thread *chSchReadyI(Thread *tp) {
               "invalid state");
 
   tp->p_state = THD_STATE_READY;
-  cp = (Thread *)&rlist.r_queue;
+  cp = (chThread *)&rlist.r_queue;
   do {
     cp = cp->p_next;
   } while (cp->p_prio >= tp->p_prio);
@@ -106,7 +106,7 @@ Thread *chSchReadyI(Thread *tp) {
  */
 #if !defined(PORT_OPTIMIZED_GOSLEEPS) || defined(__DOXYGEN__)
 void chSchGoSleepS(tstate_t newstate) {
-  Thread *otp;
+  chThread *otp;
 
   chDbgCheckClassS();
 
@@ -127,7 +127,7 @@ void chSchGoSleepS(tstate_t newstate) {
  * Timeout wakeup callback.
  */
 static void wakeup(void *p) {
-  Thread *tp = (Thread *)p;
+  chThread *tp = (chThread *)p;
 
   chSysLockFromIsr();
   switch (tp->p_state) {
@@ -140,7 +140,7 @@ static void wakeup(void *p) {
     (CH_USE_CONDVARS && CH_USE_CONDVARS_TIMEOUT)
 #if CH_USE_SEMAPHORES
   case THD_STATE_WTSEM:
-    chSemFastSignalI((Semaphore *)tp->p_u.wtobjp);
+    chSemFastSignalI((chSemaphore *)tp->p_u.wtobjp);
     /* Falls into, intentional. */
 #endif
 #if CH_USE_MESSAGES
@@ -212,13 +212,13 @@ msg_t chSchGoSleepTimeoutS(tstate_t newstate, systime_t time) {
  * @note    The function assumes that the current thread has the highest
  *          priority.
  *
- * @param[in] ntp       the Thread to be made ready
+ * @param[in] ntp       the chThread to be made ready
  * @param[in] msg       message to the awakened thread
  *
  * @sclass
  */
 #if !defined(PORT_OPTIMIZED_WAKEUPS) || defined(__DOXYGEN__)
-void chSchWakeupS(Thread *ntp, msg_t msg) {
+void chSchWakeupS(chThread *ntp, msg_t msg) {
 
   chDbgCheckClassS();
 
@@ -230,7 +230,7 @@ void chSchWakeupS(Thread *ntp, msg_t msg) {
   if (ntp->p_prio <= currp->p_prio)
     chSchReadyI(ntp);
   else {
-    Thread *otp = chSchReadyI(currp);
+    chThread *otp = chSchReadyI(currp);
     setcurrp(ntp);
     ntp->p_state = THD_STATE_CURRENT;
     chSysSwitch(ntp, otp);
@@ -298,7 +298,7 @@ bool_t chSchIsPreemptionRequired(void) {
  */
 #if !defined(PORT_OPTIMIZED_DORESCHEDULEBEHIND) || defined(__DOXYGEN__)
 void chSchDoRescheduleBehind(void) {
-  Thread *otp;
+  chThread *otp;
 
   otp = currp;
   /* Picks the first thread from the ready queue and makes it current.*/
@@ -323,7 +323,7 @@ void chSchDoRescheduleBehind(void) {
  */
 #if !defined(PORT_OPTIMIZED_DORESCHEDULEAHEAD) || defined(__DOXYGEN__)
 void chSchDoRescheduleAhead(void) {
-  Thread *otp, *cp;
+  chThread *otp, *cp;
 
   otp = currp;
   /* Picks the first thread from the ready queue and makes it current.*/
@@ -331,7 +331,7 @@ void chSchDoRescheduleAhead(void) {
   currp->p_state = THD_STATE_CURRENT;
 
   otp->p_state = THD_STATE_READY;
-  cp = (Thread *)&rlist.r_queue;
+  cp = (chThread *)&rlist.r_queue;
   do {
     cp = cp->p_next;
   } while (cp->p_prio > otp->p_prio);

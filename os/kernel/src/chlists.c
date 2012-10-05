@@ -20,7 +20,7 @@
 
 /**
  * @file    chlists.c
- * @brief   Thread queues/lists code.
+ * @brief   chThread queues/lists code.
  *
  * @addtogroup internals
  * @details All the functions present in this module, while public, are not
@@ -41,15 +41,15 @@
  *
  * @notapi
  */
-void prio_insert(Thread *tp, ThreadsQueue *tqp) {
+void prio_insert(chThread *tp, ThreadsQueue *tqp) {
 
   /* cp iterates over the queue.*/
-  Thread *cp = (Thread *)tqp;
+  chThread *cp = (chThread *)tqp;
   do {
     /* Iterate to next thread in queue.*/
     cp = cp->p_next;
     /* Not end of queue? and cp has equal or higher priority than tp?.*/
-  } while ((cp != (Thread *)tqp) && (cp->p_prio >= tp->p_prio));
+  } while ((cp != (chThread *)tqp) && (cp->p_prio >= tp->p_prio));
   /* Insertion on p_prev.*/
   tp->p_next = cp;
   tp->p_prev = cp->p_prev;
@@ -57,22 +57,22 @@ void prio_insert(Thread *tp, ThreadsQueue *tqp) {
 }
 
 /**
- * @brief   Inserts a Thread into a queue.
+ * @brief   Inserts a chThread into a queue.
  *
  * @param[in] tp        the pointer to the thread to be inserted in the list
  * @param[in] tqp       the pointer to the threads list header
  *
  * @notapi
  */
-void queue_insert(Thread *tp, ThreadsQueue *tqp) {
+void queue_insert(chThread *tp, ThreadsQueue *tqp) {
 
-  tp->p_next = (Thread *)tqp;
+  tp->p_next = (chThread *)tqp;
   tp->p_prev = tqp->p_prev;
   tp->p_prev->p_next = tqp->p_prev = tp;
 }
 
 /**
- * @brief   Removes the first-out Thread from a queue and returns it.
+ * @brief   Removes the first-out chThread from a queue and returns it.
  * @note    If the queue is priority ordered then this function returns the
  *          thread with the highest priority.
  *
@@ -81,15 +81,15 @@ void queue_insert(Thread *tp, ThreadsQueue *tqp) {
  *
  * @notapi
  */
-Thread *fifo_remove(ThreadsQueue *tqp) {
-  Thread *tp = tqp->p_next;
+chThread *fifo_remove(ThreadsQueue *tqp) {
+  chThread *tp = tqp->p_next;
 
-  (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+  (tqp->p_next = tp->p_next)->p_prev = (chThread *)tqp;
   return tp;
 }
 
 /**
- * @brief   Removes the last-out Thread from a queue and returns it.
+ * @brief   Removes the last-out chThread from a queue and returns it.
  * @note    If the queue is priority ordered then this function returns the
  *          thread with the lowest priority.
  *
@@ -98,15 +98,15 @@ Thread *fifo_remove(ThreadsQueue *tqp) {
  *
  * @notapi
  */
-Thread *lifo_remove(ThreadsQueue *tqp) {
-  Thread *tp = tqp->p_prev;
+chThread *lifo_remove(ThreadsQueue *tqp) {
+  chThread *tp = tqp->p_prev;
 
-  (tqp->p_prev = tp->p_prev)->p_next = (Thread *)tqp;
+  (tqp->p_prev = tp->p_prev)->p_next = (chThread *)tqp;
   return tp;
 }
 
 /**
- * @brief   Removes a Thread from a queue and returns it.
+ * @brief   Removes a chThread from a queue and returns it.
  * @details The thread is removed from the queue regardless of its relative
  *          position and regardless the used insertion method.
  *
@@ -115,7 +115,7 @@ Thread *lifo_remove(ThreadsQueue *tqp) {
  *
  * @notapi
  */
-Thread *dequeue(Thread *tp) {
+chThread *dequeue(chThread *tp) {
 
   tp->p_prev->p_next = tp->p_next;
   tp->p_next->p_prev = tp->p_prev;
@@ -123,21 +123,21 @@ Thread *dequeue(Thread *tp) {
 }
 
 /**
- * @brief   Pushes a Thread on top of a stack list.
+ * @brief   Pushes a chThread on top of a stack list.
  *
  * @param[in] tp    the pointer to the thread to be inserted in the list
  * @param[in] tlp   the pointer to the threads list header
  *
  * @notapi
  */
-void list_insert(Thread *tp, ThreadsList *tlp) {
+void list_insert(chThread *tp, ThreadsList *tlp) {
 
   tp->p_next = tlp->p_next;
   tlp->p_next = tp;
 }
 
 /**
- * @brief   Pops a Thread from the top of a stack list and returns it.
+ * @brief   Pops a chThread from the top of a stack list and returns it.
  * @pre     The list must be non-empty before calling this function.
  *
  * @param[in] tlp       the pointer to the threads list header
@@ -145,9 +145,9 @@ void list_insert(Thread *tp, ThreadsList *tlp) {
  *
  * @notapi
  */
-Thread *list_remove(ThreadsList *tlp) {
+chThread *list_remove(ThreadsList *tlp) {
 
-  Thread *tp = tlp->p_next;
+  chThread *tp = tlp->p_next;
   tlp->p_next = tp->p_next;
   return tp;
 }

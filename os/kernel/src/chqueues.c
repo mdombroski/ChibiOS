@@ -71,7 +71,7 @@ static msg_t qwait(GenericQueue *qp, systime_t time) {
 
 /**
  * @brief   Initializes an input queue.
- * @details A Semaphore is internally initialized and works as a counter of
+ * @details A chSemaphore is internally initialized and works as a counter of
  *          the bytes contained in the queue.
  * @note    The callback is invoked from within the S-Locked system state,
  *          see @ref system_states.
@@ -251,7 +251,7 @@ size_t chIQReadTimeout(InputQueue *iqp, uint8_t *bp,
 
 /**
  * @brief   Initializes an output queue.
- * @details A Semaphore is internally initialized and works as a counter of
+ * @details A chSemaphore is internally initialized and works as a counter of
  *          the free bytes in the queue.
  * @note    The callback is invoked from within the S-Locked system state,
  *          see @ref system_states.

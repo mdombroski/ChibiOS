@@ -32,29 +32,29 @@
 #if CH_USE_SEMAPHORES || defined(__DOXYGEN__)
 
 /**
- * @brief   Semaphore structure.
+ * @brief   chSemaphore structure.
  */
-typedef struct Semaphore {
+typedef struct chSemaphore {
   ThreadsQueue          s_queue;    /**< @brief Queue of the threads sleeping
                                                 on this semaphore.          */
   cnt_t                 s_cnt;      /**< @brief The semaphore counter.      */
-} Semaphore;
+} chSemaphore;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void chSemInit(Semaphore *sp, cnt_t n);
-  void chSemReset(Semaphore *sp, cnt_t n);
-  void chSemResetI(Semaphore *sp, cnt_t n);
-  msg_t chSemWait(Semaphore *sp);
-  msg_t chSemWaitS(Semaphore *sp);
-  msg_t chSemWaitTimeout(Semaphore *sp, systime_t time);
-  msg_t chSemWaitTimeoutS(Semaphore *sp, systime_t time);
-  void chSemSignal(Semaphore *sp);
-  void chSemSignalI(Semaphore *sp);
-  void chSemAddCounterI(Semaphore *sp, cnt_t n);
+  void chSemInit(chSemaphore *sp, cnt_t n);
+  void chSemReset(chSemaphore *sp, cnt_t n);
+  void chSemResetI(chSemaphore *sp, cnt_t n);
+  msg_t chSemWait(chSemaphore *sp);
+  msg_t chSemWaitS(chSemaphore *sp);
+  msg_t chSemWaitTimeout(chSemaphore *sp, systime_t time);
+  msg_t chSemWaitTimeoutS(chSemaphore *sp, systime_t time);
+  void chSemSignal(chSemaphore *sp);
+  void chSemSignalI(chSemaphore *sp);
+  void chSemAddCounterI(chSemaphore *sp, cnt_t n);
 #if CH_USE_SEMSW
-  msg_t chSemSignalWait(Semaphore *sps, Semaphore *spw);
+  msg_t chSemSignalWait(chSemaphore *sps, chSemaphore *spw);
 #endif
 #ifdef __cplusplus
 }
@@ -80,7 +80,7 @@ extern "C" {
  * @param[in] n         the counter initial value, this value must be
  *                      non-negative
  */
-#define SEMAPHORE_DECL(name, n) Semaphore name = _SEMAPHORE_DATA(name, n)
+#define SEMAPHORE_DECL(name, n) chSemaphore name = _SEMAPHORE_DATA(name, n)
 
 /**
  * @name    Macro Functions

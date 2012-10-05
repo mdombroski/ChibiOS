@@ -162,7 +162,7 @@ void _port_switch_from_isr(void) {
 #if !defined(__DOXYGEN__)
 __attribute__((naked))
 #endif
-void _port_switch(Thread *ntp, Thread *otp) {
+void _port_switch(chThread *ntp, chThread *otp) {
   register struct intctx *r13 asm ("r13");
 
   asm volatile ("push    {r4, r5, r6, r7, lr}                   \n\t"

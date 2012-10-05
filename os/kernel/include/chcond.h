@@ -42,25 +42,25 @@
 #endif
 
 /**
- * @brief   CondVar structure.
+ * @brief   chCondVar structure.
  */
-typedef struct CondVar {
-  ThreadsQueue          c_queue;        /**< @brief CondVar threads queue.*/
-} CondVar;
+typedef struct chCondVar {
+  ThreadsQueue          c_queue;        /**< @brief chCondVar threads queue.*/
+} chCondVar;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void chCondInit(CondVar *cp);
-  void chCondSignal(CondVar *cp);
-  void chCondSignalI(CondVar *cp);
-  void chCondBroadcast(CondVar *cp);
-  void chCondBroadcastI(CondVar *cp);
-  msg_t chCondWait(CondVar *cp);
-  msg_t chCondWaitS(CondVar *cp);
+  void chCondInit(chCondVar *cp);
+  void chCondSignal(chCondVar *cp);
+  void chCondSignalI(chCondVar *cp);
+  void chCondBroadcast(chCondVar *cp);
+  void chCondBroadcastI(chCondVar *cp);
+  msg_t chCondWait(chCondVar *cp);
+  msg_t chCondWaitS(chCondVar *cp);
 #if CH_USE_CONDVARS_TIMEOUT
-  msg_t chCondWaitTimeout(CondVar *cp, systime_t time);
-  msg_t chCondWaitTimeoutS(CondVar *cp, systime_t time);
+  msg_t chCondWaitTimeout(chCondVar *cp, systime_t time);
+  msg_t chCondWaitTimeoutS(chCondVar *cp, systime_t time);
 #endif
 #ifdef __cplusplus
 }
@@ -82,7 +82,7 @@ extern "C" {
  *
  * @param[in] name      the name of the condition variable
  */
-#define CONDVAR_DECL(name) CondVar name = _CONDVAR_DATA(name)
+#define CONDVAR_DECL(name) chCondVar name = _CONDVAR_DATA(name)
 
 #endif /* CH_USE_CONDVARS */
 

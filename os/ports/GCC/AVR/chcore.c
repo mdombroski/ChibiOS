@@ -43,7 +43,7 @@
 #if !defined(__DOXYGEN__)
 __attribute__((naked, weak))
 #endif
-void port_switch(Thread *ntp, Thread *otp) {
+void port_switch(chThread *ntp, chThread *otp) {
 
   asm volatile ("push    r2");
   asm volatile ("push    r3");
