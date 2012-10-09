@@ -34,9 +34,6 @@
 /*
  * Module dependencies check.
  */
-#if !CH_USE_MEMCORE && !CH_USE_MALLOC_HEAP
-#error "CH_USE_HEAP requires CH_USE_MEMCORE or CH_USE_MALLOC_HEAP"
-#endif
 
 #if !CH_USE_MUTEXES && !CH_USE_SEMAPHORES
 #error "CH_USE_HEAP requires CH_USE_MUTEXES and/or CH_USE_SEMAPHORES"
@@ -75,7 +72,11 @@ struct memory_heap {
 #ifdef __cplusplus
 extern "C" {
 #endif
+#if CH_USE_MEMCORE
   void _heap_init(void);
+#else
+#define _heap_init()
+#endif
 #if !CH_USE_MALLOC_HEAP
   void chHeapInit(MemoryHeap *heapp, void *buf, size_t size);
 #endif

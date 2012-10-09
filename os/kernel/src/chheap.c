@@ -55,6 +55,7 @@
 #define H_UNLOCK(h)     chSemSignal(&(h)->h_sem)
 #endif
 
+#if CH_USE_MEMCORE
 /**
  * @brief   Default heap descriptor.
  */
@@ -75,6 +76,8 @@ void _heap_init(void) {
   chSemInit(&default_heap.h_sem, 1);
 #endif
 }
+
+#endif
 
 /**
  * @brief   Initializes a memory heap from a static memory area.
@@ -126,7 +129,11 @@ void *chHeapAlloc(MemoryHeap *heapp, size_t size) {
   union heap_header *qp, *hp, *fp;
 
   if (heapp == NULL)
+#if CH_USE_MEMCORE
     heapp = &default_heap;
+#else
+    return NULL;
+#endif
 
   size = MEM_ALIGN_NEXT(size);
   qp = &heapp->h_free;
@@ -245,7 +252,11 @@ size_t chHeapStatus(MemoryHeap *heapp, size_t *sizep) {
   size_t n, sz;
 
   if (heapp == NULL)
+#if CH_USE_MEMCORE
     heapp = &default_heap;
+#else
+    return NULL;
+#endif
 
   H_LOCK(heapp);
 
