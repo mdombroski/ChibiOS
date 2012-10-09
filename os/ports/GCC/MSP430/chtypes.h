@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    MSP430/chtypes.h
+ * @file    GCC/MSP430/chtypes.h
  * @brief   MSP430 architecture port system types.
  *
  * @addtogroup MSP430_CORE
