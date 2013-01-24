@@ -143,6 +143,9 @@ static void wakeup(void *p) {
     chSemFastSignalI((Semaphore *)tp->p_u.wtobjp);
     /* Falls into, intentional. */
 #endif
+#if CH_USE_MESSAGES
+  case THD_STATE_SNDMSGQ:
+#endif
 #if CH_USE_QUEUES
   case THD_STATE_WTQUEUE:
 #endif

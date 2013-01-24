@@ -83,6 +83,34 @@ msg_t chMsgSend(Thread *tp, msg_t msg) {
 }
 
 /**
+ * @brief   Sends a message to the specified thread.
+ * @details The sender is stopped until the receiver executes a
+ *          @p chMsgRelease()after receiving the message.
+ *
+ * @param[in] tp        the pointer to the thread
+ * @param[in] msg       the message
+ * @param[in] time		timeout
+ * @return              The answer message from @p chMsgRelease().
+ *
+ * @api
+ */
+msg_t chMsgSendTimeout(Thread *tp, msg_t msg, systime_t time) {
+  Thread *ctp = currp;
+
+  chDbgCheck(tp != NULL, "chMsgSend");
+
+  chSysLock();
+  ctp->p_msg = msg;
+  ctp->p_u.wtobjp = &tp->p_msgqueue;
+  msg_insert(ctp, &tp->p_msgqueue);
+  if (tp->p_state == THD_STATE_WTMSG)
+	  chSchWakeupS(tp, RDY_OK);
+  msg = chSchGoSleepTimeoutS(THD_STATE_SNDMSGQ, time);
+  chSysUnlock();
+  return msg;
+}
+
+/**
  * @brief   Suspends the thread and waits for an incoming message.
  * @post    After receiving a message the function @p chMsgGet() must be
  *          called in order to retrieve the message and then @p chMsgRelease()
@@ -92,20 +120,58 @@ msg_t chMsgSend(Thread *tp, msg_t msg) {
  *          pointed by the message is stable until you invoke @p chMsgRelease()
  *          because the sending thread is suspended until then.
  *
- * @return              A reference to the thread carrying the message.
+ * @return  The message sent by @chMsgSend or @chMsgSendTimeout.
  *
  * @api
  */
-Thread *chMsgWait(void) {
+msg_t chMsgWait(void) {
   Thread *tp;
 
   chSysLock();
   if (!chMsgIsPendingI(currp))
     chSchGoSleepS(THD_STATE_WTMSG);
-  tp = fifo_remove(&currp->p_msgqueue);
-  tp->p_state = THD_STATE_SNDMSG;
+  tp = fifo_peek(&currp->p_msgqueue);
   chSysUnlock();
-  return tp;
+  return tp->p_msg;
+}
+
+/**
+ * @brief   Suspends the thread and waits for an incoming message.
+ * @post    After receiving a message the function @p chMsgGet() must be
+ *          called in order to retrieve the message and then @p chMsgRelease()
+ *          must be invoked in order to acknowledge the reception and send
+ *          the answer.
+ * @note    If the message is a pointer then you can assume that the data
+ *          pointed by the message is stable until you invoke @p chMsgRelease()
+ *          because the sending thread is suspended until then.
+ *
+ * @param[in] time      the number of ticks before the operation timeouts,
+ *                      the following special values are allowed:
+ *                      - @a TIME_IMMEDIATE immediate timeout.
+ *                      - @a TIME_INFINITE no timeout.
+ *
+ * @return  The message sent by @chMsgSend or @chMsgSendTimeout.
+ *
+ * @api
+ */
+msg_t chMsgWaitTimeout(systime_t time) {
+  Thread *tp = 0;
+  msg_t m = RDY_OK;
+
+  chSysLock();
+  if (!chMsgIsPendingI(currp)) {
+    if (TIME_IMMEDIATE == time)
+      m = RDY_TIMEOUT;
+    else
+      m = chSchGoSleepTimeoutS(THD_STATE_WTMSG, time);
+  }
+
+  if (m == RDY_OK) {
+    tp = fifo_peek(&currp->p_msgqueue);
+    m = tp->p_msg;
+  }
+  chSysUnlock();
+  return m;
 }
 
 /**
@@ -113,17 +179,16 @@ Thread *chMsgWait(void) {
  * @pre     Invoke this function only after a message has been received
  *          using @p chMsgWait().
  *
- * @param[in] tp        pointer to the thread
  * @param[in] msg       message to be returned to the sender
  *
  * @api
  */
-void chMsgRelease(Thread *tp, msg_t msg) {
+void chMsgRelease(msg_t msg) {
+  Thread *tp = 0;
 
   chSysLock();
-  chDbgAssert(tp->p_state == THD_STATE_SNDMSG,
-              "chMsgRelease(), #1", "invalid state");
-  chMsgReleaseS(tp, msg);
+  tp = fifo_remove(&currp->p_msgqueue);
+  chSchWakeupS(tp, msg);
   chSysUnlock();
 }
 
