@@ -49,8 +49,12 @@ static INLINE void queue_insert(Thread *tp, ThreadsQueue *tqp) {
   tp->p_prev->p_next = tqp->p_prev = tp;
 }
 
+static INLINE Thread *fifo_peek(ThreadsQueue *tqp) {
+  return tqp->p_next;
+}
+
 static INLINE Thread *fifo_remove(ThreadsQueue *tqp) {
-  Thread *tp = tqp->p_next;
+  chThread *tp = tqp->p_next;
 
   (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
   return tp;

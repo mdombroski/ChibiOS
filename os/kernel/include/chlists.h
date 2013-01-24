@@ -111,6 +111,7 @@ extern "C" {
 #endif
   void prio_insert(Thread *tp, ThreadsQueue *tqp);
   void queue_insert(Thread *tp, ThreadsQueue *tqp);
+  Thread *fifo_peek(ThreadsQueue *tqp);
   Thread *fifo_remove(ThreadsQueue *tqp);
   Thread *lifo_remove(ThreadsQueue *tqp);
   Thread *dequeue(Thread *tp);
