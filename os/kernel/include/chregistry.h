@@ -35,7 +35,7 @@
  * @brief   ChibiOS/RT memory signature record.
  */
 typedef struct {
-  char      ch_identifier[4];       /**< @brief Always set to "main".       */
+  char      ch_identifier[5];       /**< @brief Always set to "main".       */
   uint8_t   ch_zero;                /**< @brief Must be zero.               */
   uint8_t   ch_size;                /**< @brief Size of this structure.     */
   uint16_t  ch_version;             /**< @brief Encoded ChibiOS/RT version. */
