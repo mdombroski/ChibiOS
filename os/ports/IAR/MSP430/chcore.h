@@ -194,7 +194,18 @@ struct context {
  * @note    In this port the default is 32 bytes per thread.
  */
 #ifndef PORT_INT_REQUIRED_STACK
-#define PORT_INT_REQUIRED_STACK         32
+#define PORT_INT_REQUIRED_STACK         16
+#endif
+
+/**
+ * @brief   Stack size reserved for interrupt processing
+ * @details This constant is used in the calculation of the interrupt stack
+ *          area.
+ *          This value can be zero on systems not requiring interrupt stack.
+ * @note    In this port the default is 64 bytes.
+ */
+#ifndef PORT_IRQ_STACK_SIZE
+#define PORT_IRQ_STACK_SIZE             64
 #endif
 
 /**
@@ -222,7 +233,7 @@ struct context {
  * @details This macro must be inserted at the start of all IRQ handlers
  *          enabled to invoke system APIs.
  */
-#define PORT_IRQ_PROLOGUE()
+#define PORT_IRQ_PROLOGUE() port_irq_enter()
 
 /**
  * @brief   IRQ epilogue code.
@@ -230,6 +241,7 @@ struct context {
  *          enabled to invoke system APIs.
  */
 #define PORT_IRQ_EPILOGUE() {                                               \
+  port_irq_exit();                                                          \
   dbg_check_lock();                                                         \
   if (chSchIsPreemptionRequired())                                          \
     chSchDoReschedule();                                                    \
@@ -351,6 +363,19 @@ extern istate_t _port_istate;
     chDbgPanic("stack overflow");                                           \
   _port_switch(ntp, otp);                                                   \
 }
+#endif
+
+#if PORT_IRQ_STACK_SIZE > 0 || defined(__DOXYGEN__)
+extern stkalign_t _port_irq_stack[ PORT_IRQ_STACK_SIZE / sizeof(stkalign_t) ];
+#define irq_stack_top (((stkalign_t) _port_irq_stack ) + sizeof(_port_irq_stack))
+#define port_irq_enter() {                                                  \
+  currp->p_ctx.sp = (struct intctx __data16*) __get_SP_register();          \
+  __set_SP_register( irq_stack_top );                                       \
+}
+#define port_irq_exit() __set_SP_register((unsigned short)currp->p_ctx.sp)
+#else
+#define port_irq_enter()
+#define port_irq_exit()
 #endif
 
 #ifdef __cplusplus

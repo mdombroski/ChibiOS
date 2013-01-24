@@ -154,4 +154,7 @@ void _port_thread_start(void) {
   chThdExit(0);
 }
 
+
+stkalign_t _port_irq_stack[ PORT_IRQ_STACK_SIZE / sizeof(stkalign_t) ];
+
 /** @} */
