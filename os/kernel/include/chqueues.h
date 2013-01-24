@@ -188,6 +188,9 @@ typedef GenericQueue InputQueue;
 #define chIQGet(iqp) chIQGetTimeout(iqp, TIME_INFINITE)
 /** @} */
 
+#define chIQPeekI(iqp) ((msg_t)(((iqp)->q_wrptr != (iqp)->q_rdptr) ?        \
+                                 *((iqp)->q_rdptr) : Q_EMPTY))
+
 /**
  * @brief   Data part of a static input queue initializer.
  * @details This macro should be used when statically initializing an
