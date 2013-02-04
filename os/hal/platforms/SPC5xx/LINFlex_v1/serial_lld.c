@@ -1,26 +1,20 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
-
-    This file is part of ChibiOS/RT.
-
-    ChibiOS/RT is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    ChibiOS/RT is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Licensed under ST Liberty SW License Agreement V2, (the "License");
+ * You may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *        http://www.st.com/software_license_agreement_liberty_v2
+ *
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 /**
- * @file    SPC56x/serial_lld.c
- * @brief   SPC563 low level serial driver code.
+ * @file    SPC5xx/LINFlex_v1/serial_lld.c
+ * @brief   SPC5xx low level serial driver code.
  *
  * @addtogroup SERIAL
  * @{
@@ -36,17 +30,31 @@
 /*===========================================================================*/
 
 /**
- * @brief   eSCI-A serial driver identifier.
+ * @brief   LIINFlex-0 serial driver identifier.
  */
-#if USE_SPC563_ESCIA || defined(__DOXYGEN__)
+#if SPC5_SERIAL_USE_LINFLEX0 || defined(__DOXYGEN__)
 SerialDriver SD1;
 #endif
 
 /**
- * @brief   eSCI-B serial driver identifier.
+ * @brief   LIINFlex-1 serial driver identifier.
  */
-#if USE_SPC563_ESCIB || defined(__DOXYGEN__)
+#if SPC5_SERIAL_USE_LINFLEX1 || defined(__DOXYGEN__)
 SerialDriver SD2;
+#endif
+
+/**
+ * @brief   LIINFlex-2 serial driver identifier.
+ */
+#if SPC5_SERIAL_USE_LINFLEX2 || defined(__DOXYGEN__)
+SerialDriver SD3;
+#endif
+
+/**
+ * @brief   LIINFlex-3 serial driver identifier.
+ */
+#if SPC5_SERIAL_USE_LINFLEX3 || defined(__DOXYGEN__)
+SerialDriver SD4;
 #endif
 
 /*===========================================================================*/
@@ -58,7 +66,7 @@ SerialDriver SD2;
  */
 static const SerialConfig default_config = {
   SERIAL_DEFAULT_BITRATE,
-  SD_MODE_NORMAL | SD_MODE_PARITY_NONE
+  SD_MODE_8BITS_PARITY_NONE
 };
 
 /*===========================================================================*/
@@ -66,132 +74,146 @@ static const SerialConfig default_config = {
 /*===========================================================================*/
 
 /**
- * @brief   eSCI initialization.
+ * @brief   LINFlex initialization.
  * @details This function must be invoked with interrupts disabled.
  *
  * @param[in] sdp       pointer to a @p SerialDriver object
  * @param[in] config    the architecture-dependent serial driver configuration
  */
-static void esci_init(SerialDriver *sdp, const SerialConfig *config) {
-  volatile struct ESCI_tag *escip = sdp->escip;
-  uint8_t mode = config->sc_mode;
+static void spc5_linflex_init(SerialDriver *sdp, const SerialConfig *config) {
+  uint32_t div;
+  volatile struct LINFLEX_tag *linflexp = sdp->linflexp;
 
-  escip->CR2.R  = 0;                /* MDIS off.                            */
-  escip->CR1.R  = 0;
-  escip->LCR.R  = 0;
-  escip->CR1.B.SBR = SPC563_SYSCLK / (16 * config->sc_speed);
-  if (mode & SD_MODE_LOOPBACK)
-    escip->CR1.B.LOOPS = 1;
-  switch (mode & SD_MODE_PARITY) {
-  case SD_MODE_PARITY_ODD:
-    escip->CR1.B.PT = 1;
-  case SD_MODE_PARITY_EVEN:
-    escip->CR1.B.PE = 1;
-    escip->CR1.B.M  = 1;            /* Makes it 8 bits data + 1 bit parity. */
-  default:
-    ;
-  }
-  escip->LPR.R  = 0;
-  escip->CR1.R |= 0x0000002C;       /* RIE, TE, RE to 1.                    */
-  escip->CR2.R |= 0x000F;           /* ORIE, NFIE, FEIE, PFIE to 1.         */
+  /* Enters the configuration mode.*/
+  linflexp->LINCR1.R  = 1;                      /* INIT bit.                */
+
+  /* Configures the LINFlex in UART mode with all the required
+     parameters.*/
+  linflexp->UARTCR.R  = SPC5_UARTCR_UART;       /* UART mode FIRST.         */
+  linflexp->UARTCR.R  = SPC5_UARTCR_UART | SPC5_UARTCR_RXEN | config->mode;
+  div = halSPCGetSystemClock() / config->speed;
+  linflexp->LINFBRR.R = (uint16_t)(div & 15);   /* Fractional divider.      */
+  linflexp->LINIBRR.R = (uint16_t)(div >> 4);   /* Integer divider.         */
+  linflexp->UARTSR.R  = 0xFFFF;                 /* Clearing UARTSR register.*/
+  linflexp->LINIER.R  = SPC5_LINIER_DTIE | SPC5_LINIER_DRIE |
+                        SPC5_LINIER_BOIE | SPC5_LINIER_FEIE |
+                        SPC5_LINIER_SZIE;       /* Interrupts enabled.      */
+
+  /* Leaves the configuration mode.*/
+  linflexp->LINCR1.R  = 0;
 }
 
 /**
- * @brief   eSCI de-initialization.
+ * @brief   LINFlex de-initialization.
  * @details This function must be invoked with interrupts disabled.
  *
- * @param[in] escip     pointer to an eSCI I/O block
+ * @param[in] linflexp  pointer to a LINFlex I/O block
  */
-static void esci_deinit(volatile struct ESCI_tag *escip) {
+static void spc5_linflex_deinit(volatile struct LINFLEX_tag *linflexp) {
 
-  escip->LPR.R  = 0;
-  escip->SR.R   = 0xFFFFFFFF;
-  escip->CR1.R  = 0;
-  escip->CR2.R  = 0x8000;           /* MDIS on.                             */
+  /* Enters the configuration mode.*/
+  linflexp->LINCR1.R  = 1;                      /* INIT bit.                */
+
+  /* Resets the LINFlex registers.*/
+  linflexp->LINFBRR.R = 0;                      /* Fractional divider.      */
+  linflexp->LINIBRR.R = 0;                      /* Integer divider.         */
+  linflexp->UARTSR.R  = 0xFFFF;                 /* Clearing UARTSR register.*/
+  linflexp->UARTCR.R  = SPC5_UARTCR_UART;
+  linflexp->LINIER.R  = 0;                      /* Interrupts disabled.     */
+
+  /* Leaves the configuration mode.*/
+  linflexp->LINCR1.R  = 0;
 }
 
 /**
- * @brief   Error handling routine.
+ * @brief   Common RXI IRQ handler.
  *
  * @param[in] sdp       pointer to a @p SerialDriver object
- * @param[in] sr        eSCI SR register value
  */
-static void set_error(SerialDriver *sdp, uint32_t sr) {
+static void spc5xx_serve_rxi_interrupt(SerialDriver *sdp) {
   flagsmask_t sts = 0;
+  uint16_t sr = sdp->linflexp->UARTSR.R;
 
-  if (sr & 0x08000000)
-    sts |= SD_OVERRUN_ERROR;
-  if (sr & 0x04000000)
+  sdp->linflexp->UARTSR.R = SPC5_UARTSR_NF | SPC5_UARTSR_DRF |
+                            SPC5_UARTSR_PE0;
+  if (sr & SPC5_UARTSR_NF)
     sts |= SD_NOISE_ERROR;
-  if (sr & 0x02000000)
-    sts |= SD_FRAMING_ERROR;
-  if (sr & 0x01000000)
+  if (sr & SPC5_UARTSR_PE0)
     sts |= SD_PARITY_ERROR;
-/*  if (sr & 0x00000000)
-    sts |= SD_BREAK_DETECTED;*/
+  if (sts) {
+    chSysLockFromIsr();
+    chnAddFlagsI(sdp, sts);
+    chSysUnlockFromIsr();
+  }
+  if (sr & SPC5_UARTSR_DRF) {
+     sdIncomingDataI(sdp, sdp->linflexp->BDRM.B.DATA4);
+     sdp->linflexp->UARTSR.R = SPC5_UARTSR_RMB;
+  }
+}
+
+/**
+ * @brief   Common TXI IRQ handler.
+ *
+ * @param[in] sdp       pointer to a @p SerialDriver object
+ */
+static void spc5xx_serve_txi_interrupt(SerialDriver *sdp) {
+  msg_t b;
+
+  sdp->linflexp->UARTSR.R = SPC5_UARTSR_DTF;
+  b = chOQGetI(&sdp->oqueue);
+  if (b < Q_OK) {
+    chnAddFlagsI(sdp, CHN_OUTPUT_EMPTY);
+    sdp->linflexp->UARTCR.B.TXEN = 0;
+  }
+  else
+    sdp->linflexp->BDRL.B.DATA0 = b;
+}
+
+/**
+ * @brief   Common ERR IRQ handler.
+ *
+ * @param[in] sdp       pointer to a @p SerialDriver object
+ */
+static void spc5xx_serve_err_interrupt(SerialDriver *sdp) {
+  flagsmask_t sts = 0;
+  uint16_t sr = sdp->linflexp->UARTSR.R;
+
+  sdp->linflexp->UARTSR.R = SPC5_UARTSR_BOF | SPC5_UARTSR_FEF |
+                            SPC5_UARTSR_SZF;
+  if (sr & SPC5_UARTSR_BOF)
+    sts |= SD_OVERRUN_ERROR;
+  if (sr & SPC5_UARTSR_FEF)
+    sts |= SD_FRAMING_ERROR;
+  if (sr & SPC5_UARTSR_SZF)
+    sts |= SD_BREAK_DETECTED;
   chSysLockFromIsr();
   chnAddFlagsI(sdp, sts);
   chSysUnlockFromIsr();
 }
 
-/**
- * @brief   Common IRQ handler.
- *
- * @param[in] sdp       pointer to a @p SerialDriver object
- */
-static void serve_interrupt(SerialDriver *sdp) {
-  volatile struct ESCI_tag *escip = sdp->escip;
-
-  uint32_t sr = escip->SR.R;
-  escip->SR.R = 0x3FFFFFFF;                     /* Does not clear TDRE | TC.*/
-  if (sr & 0x0F000000)                          /* OR | NF | FE | PF.       */
-    set_error(sdp, sr);
-  if (sr & 0x20000000) {                        /* RDRF.                    */
-    chSysLockFromIsr();
-    sdIncomingDataI(sdp, escip->DR.B.D);
-    chSysUnlockFromIsr();
-  }
-  if (escip->CR1.B.TIE && (sr & 0x80000000)) {  /* TDRE.                    */
-    msg_t b;
-    chSysLockFromIsr();
-    b = chOQGetI(&sdp->oqueue);
-    if (b < Q_OK) {
-      chnAddFlagsI(sdp, CHN_OUTPUT_EMPTY);
-      escip->CR1.B.TIE = 0;
-    }
-    else {
-      ESCI_A.SR.B.TDRE = 1;
-      escip->DR.R = (uint16_t)b;
-    }
-    chSysUnlockFromIsr();
-  }
-}
-
-#if USE_SPC563_ESCIA || defined(__DOXYGEN__)
+#if SPC5_SERIAL_USE_LINFLEX0 || defined(__DOXYGEN__)
 static void notify1(GenericQueue *qp) {
 
   (void)qp;
-  if (ESCI_A.SR.B.TDRE) {
+  if (!SD1.linflexp->UARTCR.B.TXEN) {
     msg_t b = sdRequestDataI(&SD1);
     if (b != Q_EMPTY) {
-      ESCI_A.SR.B.TDRE = 1;
-      ESCI_A.CR1.B.TIE = 1;
-      ESCI_A.DR.R = (uint16_t)b;
+      SD1.linflexp->UARTCR.B.TXEN = 1;
+      SD1.linflexp->BDRL.B.DATA0 = b;
     }
   }
 }
 #endif
 
-#if USE_SPC563_ESCIB || defined(__DOXYGEN__)
+#if SPC5_SERIAL_USE_LINFLEX1 || defined(__DOXYGEN__)
 static void notify2(GenericQueue *qp) {
 
   (void)qp;
-  if (ESCI_B.SR.B.TDRE) {
+  if (!SD2.linflexp->UARTCR.B.TXEN) {
     msg_t b = sdRequestDataI(&SD2);
     if (b != Q_EMPTY) {
-      ESCI_B.SR.B.TDRE = 1;
-      ESCI_B.CR1.B.TIE = 1;
-      ESCI_B.DR.R = (uint16_t)b;
+      SD2.linflexp->UARTCR.B.TXEN = 1;
+      SD2.linflexp->BDRL.B.DATA0 = b;
     }
   }
 }
@@ -201,33 +223,107 @@ static void notify2(GenericQueue *qp) {
 /* Driver interrupt handlers.                                                */
 /*===========================================================================*/
 
-#if USE_SPC563_ESCIA || defined(__DOXYGEN__)
+#if SPC5_SERIAL_USE_LINFLEX0 || defined(__DOXYGEN__)
+#if !defined(SPC5_LINFLEX0_RXI_HANDLER)
+#error "SPC5_LINFLEX0_RXI_HANDLER not defined"
+#endif
 /**
- * @brief   eSCI-A interrupt handler.
+ * @brief   LINFlex-0 RXI interrupt handler.
  *
  * @isr
  */
-CH_IRQ_HANDLER(vector146) {
+CH_IRQ_HANDLER(SPC5_LINFLEX0_RXI_HANDLER) {
 
   CH_IRQ_PROLOGUE();
 
-  serve_interrupt(&SD1);
+  spc5xx_serve_rxi_interrupt(&SD1);
+
+  CH_IRQ_EPILOGUE();
+}
+
+#if !defined(SPC5_LINFLEX0_TXI_HANDLER)
+#error "SPC5_LINFLEX0_TXI_HANDLER not defined"
+#endif
+/**
+ * @brief   LINFlex-0 TXI interrupt handler.
+ *
+ * @isr
+ */
+CH_IRQ_HANDLER(SPC5_LINFLEX0_TXI_HANDLER) {
+
+  CH_IRQ_PROLOGUE();
+
+  spc5xx_serve_txi_interrupt(&SD1);
+
+  CH_IRQ_EPILOGUE();
+}
+
+#if !defined(SPC5_LINFLEX0_ERR_HANDLER)
+#error "SPC5_LINFLEX0_ERR_HANDLER not defined"
+#endif
+/**
+ * @brief   LINFlex-0 ERR interrupt handler.
+ *
+ * @isr
+ */
+CH_IRQ_HANDLER(SPC5_LINFLEX0_ERR_HANDLER) {
+
+  CH_IRQ_PROLOGUE();
+
+  spc5xx_serve_err_interrupt(&SD1);
 
   CH_IRQ_EPILOGUE();
 }
 #endif
 
-#if USE_SPC563_ESCIB || defined(__DOXYGEN__)
+#if SPC5_SERIAL_USE_LINFLEX1 || defined(__DOXYGEN__)
+#if !defined(SPC5_LINFLEX1_RXI_HANDLER)
+#error "SPC5_LINFLEX1_RXI_HANDLER not defined"
+#endif
 /**
- * @brief   eSCI-B interrupt handler.
+ * @brief   LINFlex-1 RXI interrupt handler.
  *
  * @isr
  */
-CH_IRQ_HANDLER(vector149) {
+CH_IRQ_HANDLER(SPC5_LINFLEX1_RXI_HANDLER) {
 
   CH_IRQ_PROLOGUE();
 
-  serve_interrupt(&SD2);
+  spc5xx_serve_rxi_interrupt(&SD2);
+
+  CH_IRQ_EPILOGUE();
+}
+
+#if !defined(SPC5_LINFLEX1_TXI_HANDLER)
+#error "SPC5_LINFLEX1_TXI_HANDLER not defined"
+#endif
+/**
+ * @brief   LINFlex-1 TXI interrupt handler.
+ *
+ * @isr
+ */
+CH_IRQ_HANDLER(SPC5_LINFLEX1_TXI_HANDLER) {
+
+  CH_IRQ_PROLOGUE();
+
+  spc5xx_serve_txi_interrupt(&SD2);
+
+  CH_IRQ_EPILOGUE();
+}
+
+#if !defined(SPC5_LINFLEX1_ERR_HANDLER)
+#error "SPC5_LINFLEX1_ERR_HANDLER not defined"
+#endif
+/**
+ * @brief   LINFlex-1 ERR interrupt handler.
+ *
+ * @isr
+ */
+CH_IRQ_HANDLER(SPC5_LINFLEX1_ERR_HANDLER) {
+
+  CH_IRQ_PROLOGUE();
+
+  spc5xx_serve_err_interrupt(&SD2);
 
   CH_IRQ_EPILOGUE();
 }
@@ -244,18 +340,20 @@ CH_IRQ_HANDLER(vector149) {
  */
 void sd_lld_init(void) {
 
-#if USE_SPC563_ESCIA
+#if SPC5_SERIAL_USE_LINFLEX0
   sdObjectInit(&SD1, NULL, notify1);
-  SD1.escip       = &ESCI_A;
-  ESCI_A.CR2.R    = 0x8000;                 /* MDIS ON.                     */
-  INTC.PSR[146].R = SPC563_ESCIA_PRIORITY;
+  SD1.linflexp = &LINFLEX_0;
+  INTC.PSR[SPC5_LINFLEX0_RXI_NUMBER].R = SPC5_SERIAL_LINFLEX0_PRIORITY;
+  INTC.PSR[SPC5_LINFLEX0_TXI_NUMBER].R = SPC5_SERIAL_LINFLEX0_PRIORITY;
+  INTC.PSR[SPC5_LINFLEX0_ERR_NUMBER].R = SPC5_SERIAL_LINFLEX0_PRIORITY;
 #endif
 
-#if USE_SPC563_ESCIB
+#if SPC5_SERIAL_USE_LINFLEX1
   sdObjectInit(&SD2, NULL, notify2);
-  SD2.escip       = &ESCI_B;
-  ESCI_B.CR2.R    = 0x8000;                 /* MDIS ON.                     */
-  INTC.PSR[149].R = SPC563_ESCIB_PRIORITY;
+  SD2.linflexp = &LINFLEX_1;
+  INTC.PSR[SPC5_LINFLEX1_RXI_NUMBER].R = SPC5_SERIAL_LINFLEX1_PRIORITY;
+  INTC.PSR[SPC5_LINFLEX1_TXI_NUMBER].R = SPC5_SERIAL_LINFLEX1_PRIORITY;
+  INTC.PSR[SPC5_LINFLEX1_ERR_NUMBER].R = SPC5_SERIAL_LINFLEX1_PRIORITY;
 #endif
 }
 
@@ -273,7 +371,22 @@ void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
 
   if (config == NULL)
     config = &default_config;
-  esci_init(sdp, config);
+
+  if (sdp->state == SD_STOP) {
+#if SPC5_SERIAL_USE_LINFLEX0
+    if (&SD1 == sdp) {
+      halSPCSetPeripheralClockMode(SPC5_LINFLEX0_PCTL,
+                                   SPC5_SERIAL_LINFLEX0_START_PCTL);
+    }
+#endif
+#if SPC5_SERIAL_USE_LINFLEX1
+    if (&SD2 == sdp) {
+      halSPCSetPeripheralClockMode(SPC5_LINFLEX1_PCTL,
+                                   SPC5_SERIAL_LINFLEX1_START_PCTL);
+    }
+#endif
+  }
+  spc5_linflex_init(sdp, config);
 }
 
 /**
@@ -285,8 +398,24 @@ void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
  */
 void sd_lld_stop(SerialDriver *sdp) {
 
-  if (sdp->state == SD_READY)
-    esci_deinit(sdp->escip);
+  if (sdp->state == SD_READY) {
+    spc5_linflex_deinit(sdp->linflexp);
+
+#if SPC5_SERIAL_USE_LINFLEX0
+    if (&SD1 == sdp) {
+      halSPCSetPeripheralClockMode(SPC5_LINFLEX0_PCTL,
+                                   SPC5_SERIAL_LINFLEX0_STOP_PCTL);
+      return;
+    }
+#endif
+#if SPC5_SERIAL_USE_LINFLEX1
+    if (&SD2 == sdp) {
+      halSPCSetPeripheralClockMode(SPC5_LINFLEX1_PCTL,
+                                   SPC5_SERIAL_LINFLEX1_STOP_PCTL);
+      return;
+    }
+#endif
+  }
 }
 
 #endif /* HAL_USE_SERIAL */

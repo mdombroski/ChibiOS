@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -268,7 +268,7 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  * @notapi
  */
 #define pal_lld_writepad(port, pad, bit)                                    \
-  ((port)->MASKED_ACCESS[(mask) << (pad)] = (bit) << (pad))
+  ((port)->MASKED_ACCESS[1 << (pad)] = (bit) << (pad))
 
 /**
  * @brief   Sets a pad logical state to @p PAL_HIGH.

@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -45,19 +45,19 @@
  * @{
  */
 #if defined(__DOXYGEN__)
-#define PLATFORM_NAME           "STM32F1 Performance Line"
+#define PLATFORM_NAME           "STM32F10x Performance Line"
 
 #elif defined(STM32F10X_LD)
-#define PLATFORM_NAME           "STM32F1 Performance Line Low Density"
+#define PLATFORM_NAME           "STM32F10x Performance Line Low Density"
 
 #elif defined(STM32F10X_MD)
-#define PLATFORM_NAME           "STM32F1 Performance Line Medium Density"
+#define PLATFORM_NAME           "STM32F10x Performance Line Medium Density"
 
 #elif defined(STM32F10X_HD)
-#define PLATFORM_NAME           "STM32F1 Performance Line High Density"
+#define PLATFORM_NAME           "STM32F10x Performance Line High Density"
 
 #elif defined(STM32F10X_XL)
-#define PLATFORM_NAME           "STM32F1 Performance Line eXtra Density"
+#define PLATFORM_NAME           "STM32F10x Performance Line eXtra Density"
 
 #else
 #error "unsupported STM32 Performance Line member"
@@ -205,6 +205,7 @@
 #define STM32_HAS_ADC1          TRUE
 #define STM32_HAS_ADC2          TRUE
 #define STM32_HAS_ADC3          FALSE
+#define STM32_HAS_ADC4          FALSE
 
 /* CAN attributes.*/
 #define STM32_HAS_CAN1          TRUE
@@ -1137,7 +1138,7 @@
 #elif (STM32_SW == STM32_SW_HSE)
 #define STM32_SYSCLK                STM32_HSECLK
 #else
-#error "invalid STM32_SYSCLK_SW value specified"
+#error "invalid STM32_SW value specified"
 #endif
 
 /* Check on the system clock.*/

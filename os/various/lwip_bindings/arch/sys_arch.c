@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -194,9 +194,12 @@ void sys_mbox_set_invalid(sys_mbox_t *mbox) {
 sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread,
                             void *arg, int stacksize, int prio) {
 
+  size_t wsz;
+  void *wsp;
+
   (void)name;
-  size_t wsz = THD_WA_SIZE(stacksize);
-  void *wsp = chCoreAlloc(wsz);
+  wsz = THD_WA_SIZE(stacksize);
+  wsp = chCoreAlloc(wsz);
   if (wsp == NULL)
     return NULL;
   return (sys_thread_t)chThdCreateStatic(wsp, wsz, prio, (tfunc_t)thread, arg);
@@ -212,4 +215,17 @@ void sys_arch_unprotect(sys_prot_t pval) {
 
   (void)pval;
   chSysUnlock();
+}
+
+u32_t sys_now(void) {
+
+#if CH_FREQUENCY == 1000
+  return (u32_t)chTimeNow();
+#elif (CH_FREQUENCY / 1000) >= 1 && (CH_FREQUENCY % 1000) == 0
+  return ((u32_t)chTimeNow() - 1) / (CH_FREQUENCY / 1000) + 1;
+#elif (1000 / CH_FREQUENCY) >= 1 && (1000 % CH_FREQUENCY) == 0
+  return ((u32_t)chTimeNow() - 1) * (1000 / CH_FREQUENCY) + 1;
+#else
+  return (u32_t)(((u64_t)(chTimeNow() - 1) * 1000) / CH_FREQUENCY) + 1;
+#endif
 }

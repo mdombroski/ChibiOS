@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -209,7 +209,7 @@ int main(void) {
   palSetGroupMode(GPIOC, PAL_PORT_BIT(0), 0, PAL_MODE_INPUT_ANALOG);
 
   /*
-   * Initializes the PWM driver 1, re-routes the TIM3 outputs, programs the
+   * Initializes the PWM driver 3, re-routes the TIM3 outputs, programs the
    * pins as alternate functions.
    * Note, the AFIO access routes the TIM3 output pins on the PC6...PC9
    * where the LEDs are connected.

@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -301,7 +301,7 @@ struct ADCDriver {
    */
   ADC_TypeDef               *adc;
   /**
-   * @brief Pointer to associated SMA channel.
+   * @brief Pointer to associated DMA channel.
    */
   const stm32_dma_stream_t  *dmastp;
   /**

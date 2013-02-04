@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -34,6 +34,11 @@
 /*===========================================================================*/
 /* Driver constants.                                                         */
 /*===========================================================================*/
+
+/**
+ * @brief   This implementation does not support the zero-copy mode API.
+ */
+#define MAC_SUPPORTS_ZERO_COPY      FALSE
 
 #define EMAC_RECEIVE_BUFFERS_SIZE       128     /* Do not modify */
 #define EMAC_TRANSMIT_BUFFERS_SIZE      MAC_BUFFERS_SIZE

@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -53,7 +53,7 @@
  * @name    Platform identification
  * @{
  */
-#define PLATFORM_NAME           "STM32L1 Ultra Low Power Medium Density"
+#define PLATFORM_NAME           "STM32L1xx Ultra Low Power Medium Density"
 /** @} */
 
 /**
@@ -182,6 +182,7 @@
 #define STM32_HAS_ADC1          TRUE
 #define STM32_HAS_ADC2          FALSE
 #define STM32_HAS_ADC3          FALSE
+#define STM32_HAS_ADC4          FALSE
 
 /* CAN attributes.*/
 #define STM32_HAS_CAN1          FALSE

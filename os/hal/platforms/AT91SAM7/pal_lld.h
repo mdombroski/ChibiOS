@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -64,7 +64,8 @@ typedef struct {
   /** @brief Port 0 setup data.*/
   at91sam7_pio_setup_t P0Data;
 #if (SAM7_PLATFORM == SAM7X128) || (SAM7_PLATFORM == SAM7X256) || \
-    (SAM7_PLATFORM == SAM7X512) || defined(__DOXYGEN__)
+    (SAM7_PLATFORM == SAM7X512) || (SAM7_PLATFORM == SAM7A3) || \
+    defined(__DOXYGEN__)
   /** @brief Port 1 setup data.*/
   at91sam7_pio_setup_t P1Data;
 #endif
@@ -112,7 +113,8 @@ typedef AT91PS_PIO ioportid_t;
  * @brief   PIO port B identifier.
  */
 #if (SAM7_PLATFORM == SAM7X128) || (SAM7_PLATFORM == SAM7X256) || \
-    (SAM7_PLATFORM == SAM7X512) || defined(__DOXYGEN__)
+    (SAM7_PLATFORM == SAM7X512) || (SAM7_PLATFORM == SAM7A3) || \
+    defined(__DOXYGEN__)
 #define IOPORT2         AT91C_BASE_PIOB
 #endif
 

@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -343,6 +343,15 @@ struct context {
  * @details Implemented as global interrupt enable.
  */
 #define port_enable() asm volatile ("wrteei  1" : : : "memory")
+
+/**
+ * @brief   Writes to a special register.
+ *
+ * @param[in] spr       special register number
+ * @param[in] val       value to be written
+ */
+#define port_mtspr(spr, val)                                                \
+  asm volatile ("mtspr %0,%1" : : "n" (spr), "r" (val))
 
 /**
  * @details This port function is implemented as inlined code for performance

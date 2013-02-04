@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -34,6 +34,10 @@
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
+
+#if MAC_USE_ZERO_COPY && !MAC_SUPPORTS_ZERO_COPY
+#error "MAC_USE_ZERO_COPY not supported by this implementation"
+#endif
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -148,6 +152,7 @@ msg_t macWaitTransmitDescriptor(MACDriver *macp,
                                 MACTransmitDescriptor *tdp,
                                 systime_t time) {
   msg_t msg;
+  systime_t now;
 
   chDbgCheck((macp != NULL) && (tdp != NULL), "macWaitTransmitDescriptor");
   chDbgAssert(macp->state == MAC_ACTIVE, "macWaitTransmitDescriptor(), #1",
@@ -156,7 +161,7 @@ msg_t macWaitTransmitDescriptor(MACDriver *macp,
   while (((msg = mac_lld_get_transmit_descriptor(macp, tdp)) != RDY_OK) &&
          (time > 0)) {
     chSysLock();
-    systime_t now = chTimeNow();
+    now = chTimeNow();
     if ((msg = chSemWaitTimeoutS(&macp->tdsem, time)) == RDY_TIMEOUT) {
       chSysUnlock();
       break;
@@ -206,6 +211,7 @@ msg_t macWaitReceiveDescriptor(MACDriver *macp,
                                MACReceiveDescriptor *rdp,
                                systime_t time) {
   msg_t msg;
+  systime_t now;
 
   chDbgCheck((macp != NULL) && (rdp != NULL), "macWaitReceiveDescriptor");
   chDbgAssert(macp->state == MAC_ACTIVE, "macWaitReceiveDescriptor(), #1",
@@ -214,7 +220,7 @@ msg_t macWaitReceiveDescriptor(MACDriver *macp,
   while (((msg = mac_lld_get_receive_descriptor(macp, rdp)) != RDY_OK) &&
          (time > 0)) {
     chSysLock();
-    systime_t now = chTimeNow();
+    now = chTimeNow();
     if ((msg = chSemWaitTimeoutS(&macp->rdsem, time)) == RDY_TIMEOUT) {
       chSysUnlock();
       break;

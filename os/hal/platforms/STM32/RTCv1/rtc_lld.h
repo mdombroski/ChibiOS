@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -168,6 +168,7 @@ extern RTCDriver RTCD1;
 #ifdef __cplusplus
 extern "C" {
 #endif
+  void rtc_lld_set_prescaler(void);
   void rtc_lld_init(void);
   void rtc_lld_set_time(RTCDriver *rtcp, const RTCTime *timespec);
   void rtc_lld_get_time(RTCDriver *rtcp, RTCTime *timespec);

@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -133,6 +133,7 @@ int _close_r(struct _reent *r, int file)
 
 caddr_t _sbrk_r(struct _reent *r, int incr)
 {
+#if CH_USE_MEMCORE
   void *p;
 
   chDbgCheck(incr > 0, "_sbrk_r");
@@ -144,6 +145,10 @@ caddr_t _sbrk_r(struct _reent *r, int incr)
     return (caddr_t)-1;
   }
   return (caddr_t)p;
+#else
+  __errno_r(r) = ENOMEM;
+  return (caddr_t)-1;
+#endif
 }
 
 /***************************************************************************/

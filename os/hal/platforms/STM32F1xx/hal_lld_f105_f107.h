@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -44,7 +44,7 @@
  * @name    Platform identification
  * @{
  */
-#define PLATFORM_NAME           "STM32F1 Connectivity Line"
+#define PLATFORM_NAME           "STM32F10x Connectivity Line"
 /** @} */
 
 /**
@@ -222,6 +222,7 @@
 #define STM32_HAS_ADC1          TRUE
 #define STM32_HAS_ADC2          TRUE
 #define STM32_HAS_ADC3          FALSE
+#define STM32_HAS_ADC4          FALSE
 
 /* CAN attributes.*/
 #define STM32_HAS_CAN1          TRUE
@@ -886,7 +887,7 @@
 #elif (STM32_SW == STM32_SW_HSE)
 #define STM32_SYSCLK                STM32_HSECLK
 #else
-#error "invalid STM32_SYSCLK_SW value specified"
+#error "invalid STM32_SW value specified"
 #endif
 
 /* Check on the system clock.*/

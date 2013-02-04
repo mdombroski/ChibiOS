@@ -1,22 +1,16 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
-
-    This file is part of ChibiOS/RT.
-
-    ChibiOS/RT is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    ChibiOS/RT is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Licensed under ST Liberty SW License Agreement V2, (the "License");
+ * You may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *        http://www.st.com/software_license_agreement_liberty_v2
+ *
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 /**
  * @file    SPC5xx/SIUL_v1/pal_lld.c
@@ -43,6 +37,10 @@
 /* Driver local variables.                                                   */
 /*===========================================================================*/
 
+#if defined(SPC5_SIUL_SYSTEM_PINS)
+static const unsigned system_pins[] = {SPC5_SIUL_SYSTEM_PINS};
+#endif
+
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
@@ -65,19 +63,83 @@
 void _pal_lld_init(const PALConfig *config) {
   unsigned i;
 
-  /* TODO: Replace 107 with a platform-specific constant.*/
-  for (i = 0; i <= 107; i++)
-    SIU.PCR[i].R = config->default_mode;
+#if defined(SPC5_SIUL_PCTL)
+  /* SIUL clock gating if present.*/
+  halSPCSetPeripheralClockMode(SPC5_SIUL_PCTL,
+                               SPC5_ME_PCTL_RUN(2) | SPC5_ME_PCTL_LP(2));
+#endif
 
-  i = 0;
-  while (config->pcrs[i].pcr_value != 0) {
-    SIU.PCR[config->pcrs[i].pcr_index].R = config->pcrs[i].pcr_value;
-    i++;
+  /* Initialize PCR registers for undefined pads.*/
+  for (i = 0; i < SPC5_SIUL_NUM_PCRS; i++) {
+#if defined(SPC5_SIUL_SYSTEM_PINS)
+    /* Handling the case where some SIU pins are not meant to be reprogrammed,
+       for example JTAG pins.*/
+    unsigned j;
+    for (j = 0; j < sizeof system_pins; j++) {
+      if (i == system_pins[j])
+        goto skip;
+    }
+    SIU.PCR[i].R = config->default_mode;
+skip:
+    ;
+#else
+    SIU.PCR[i].R = config->default_mode;
+#endif
   }
 
-  /* TODO: Replace 35 with a platform-specific constant.*/
-  for (i = 0; i <= 35; i++)
+  /* Initialize PADSEL registers.*/
+  for (i = 0; i < SPC5_SIUL_NUM_PADSELS; i++)
     SIU.PSMI[i].R = config->padsels[i];
+
+  /* Initialize PCR registers for defined pads.*/
+  i = 0;
+  while (config->inits[i].pcr_value != 0) {
+    SIU.GPDO[config->inits[i].pcr_index].R = config->inits[i].gpdo_value;
+    SIU.PCR[config->inits[i].pcr_index].R  = config->inits[i].pcr_value;
+    i++;
+  }
+}
+
+/**
+ * @brief   Reads a group of bits.
+ *
+ * @param[in] port      port identifier
+ * @param[in] mask      group mask
+ * @param[in] offset    group bit offset within the port
+ * @return              The group logical states.
+ *
+ * @notapi
+ */
+ioportmask_t _pal_lld_readgroup(ioportid_t port,
+                                ioportmask_t mask,
+                                uint_fast8_t offset) {
+
+  (void)port;
+  (void)mask;
+  (void)offset;
+  return 0;
+}
+
+/**
+ * @brief   Writes a group of bits.
+ *
+ * @param[in] port      port identifier
+ * @param[in] mask      group mask
+ * @param[in] offset    group bit offset within the port
+ * @param[in] bits      bits to be written. Values exceeding the group width
+ *                      are masked.
+ *
+ * @notapi
+ */
+void _pal_lld_writegroup(ioportid_t port,
+                         ioportmask_t mask,
+                         uint_fast8_t offset,
+                         ioportmask_t bits) {
+
+  (void)port;
+  (void)mask;
+  (void)offset;
+  (void)bits;
 }
 
 /**
@@ -94,9 +156,14 @@ void _pal_lld_init(const PALConfig *config) {
 void _pal_lld_setgroupmode(ioportid_t port,
                            ioportmask_t mask,
                            iomode_t mode) {
-  (void)port;
-  (void)mask;
-  (void)mode;
+  unsigned pcr_index = (unsigned)(port * PAL_IOPORTS_WIDTH);
+  ioportmask_t m1 = 0x8000;
+  while (m1) {
+    if (mask & m1)
+      SIU.PCR[pcr_index].R = mode;
+    m1 >>= 1;
+    ++pcr_index;
+  }
 }
 
 #endif /* HAL_USE_PAL */

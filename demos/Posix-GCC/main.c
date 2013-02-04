@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -107,7 +107,7 @@ static const ShellConfig shell_cfg2 = {
 /*
  * Console print server done using synchronous messages. This makes the access
  * to the C printf() thread safe and the print operation atomic among threads.
- * In this example the message is the zero termitated string itself.
+ * In this example the message is the zero terminated string itself.
  */
 static msg_t console_thread(void *arg) {
 
@@ -205,7 +205,7 @@ static evhandler_t fhandlers[] = {
  * Simulator main.                                                        *
  *------------------------------------------------------------------------*/
 int main(void) {
-  EventListener sd1fel, sd2fel, tel;
+  EventListener tel;
 
   /*
    * System initializations.

@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -34,6 +34,10 @@
 #include "hal.h"
 
 #if HAL_USE_ICU || defined(__DOXYGEN__)
+
+/*===========================================================================*/
+/* Driver local definitions.                                                 */
+/*===========================================================================*/
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -103,7 +107,8 @@ ICUDriver ICUD8;
 static void icu_lld_serve_interrupt(ICUDriver *icup) {
   uint16_t sr;
 
-  sr = icup->tim->SR & icup->tim->DIER;
+  sr  = icup->tim->SR;
+  sr &= icup->tim->DIER;
   icup->tim->SR = ~sr;
   if (icup->config->channel == ICU_CHANNEL_1) {
     if ((sr & TIM_SR_CC1IF) != 0)

@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -83,7 +83,7 @@ CH_IRQ_HANDLER(EXTI2_3_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
-  pr = EXTI->PR & ((2 << 0) | (3 << 1));
+  pr = EXTI->PR & ((1 << 2) | (1 << 3));
   EXTI->PR = pr;
   if (pr & (1 << 2))
     EXTD1.config->channels[2].cb(&EXTD1, 2);
@@ -98,7 +98,7 @@ CH_IRQ_HANDLER(EXTI2_3_IRQHandler) {
  *
  * @isr
  */
-CH_IRQ_HANDLER(EXTI9_5_IRQHandler) {
+CH_IRQ_HANDLER(EXTI4_15_IRQHandler) {
   uint32_t pr;
 
   CH_IRQ_PROLOGUE();

@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -30,6 +30,10 @@
 #include "hal.h"
 
 #if HAL_USE_PWM || defined(__DOXYGEN__)
+
+/*===========================================================================*/
+/* Driver local definitions.                                                 */
+/*===========================================================================*/
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -104,7 +108,8 @@ PWMDriver PWMD8;
 static void pwm_lld_serve_interrupt(PWMDriver *pwmp) {
   uint16_t sr;
 
-  sr = pwmp->tim->SR & pwmp->tim->DIER;
+  sr  = pwmp->tim->SR;
+  sr &= pwmp->tim->DIER;
   pwmp->tim->SR = ~sr;
   if ((sr & TIM_SR_CC1IF) != 0)
     pwmp->config->channels[0].callback(pwmp);

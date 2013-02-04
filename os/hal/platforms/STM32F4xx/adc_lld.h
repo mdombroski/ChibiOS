@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -20,7 +20,7 @@
 
 /**
  * @file    STM32F4xx/adc_lld.h
- * @brief   STM32F4xx ADC subsystem low level driver header.
+ * @brief   STM32F4xx/STM32F2xx ADC subsystem low level driver header.
  *
  * @addtogroup ADC
  * @{
@@ -47,7 +47,11 @@
 /**
  * @brief   Maximum ADC clock frequency.
  */
+#if defined(STM32F4XX) || defined(__DOXYGEN__)
 #define STM32_ADCCLK_MAX        36000000
+#else
+#define STM32_ADCCLK_MAX        30000000
+#endif
 /** @} */
 
 /**
@@ -120,8 +124,8 @@
 /**
  * @brief   ADC common clock divider.
  * @note    This setting is influenced by the VDDA voltage and other
- *          external conditions, please refer to the STM32F4xx datasheet
- *          for more info.<br>
+ *          external conditions, please refer to the datasheet for more
+ *          info.<br>
  *          See section 5.3.20 "12-bit ADC characteristics".
  */
 #if !defined(STM32_ADC_ADCPRE) || defined(__DOXYGEN__)
@@ -159,21 +163,21 @@
  * @brief   DMA stream used for ADC1 operations.
  */
 #if !defined(STM32_ADC_ADC1_DMA_STREAM) || defined(__DOXYGEN__)
-#define STM32_ADC_ADC1_DMA_STREAM        STM32_DMA_STREAM_ID(2, 4)
+#define STM32_ADC_ADC1_DMA_STREAM           STM32_DMA_STREAM_ID(2, 4)
 #endif
 
 /**
  * @brief   DMA stream used for ADC2 operations.
  */
 #if !defined(STM32_ADC_ADC2_DMA_STREAM) || defined(__DOXYGEN__)
-#define STM32_ADC_ADC2_DMA_STREAM        STM32_DMA_STREAM_ID(2, 2)
+#define STM32_ADC_ADC2_DMA_STREAM           STM32_DMA_STREAM_ID(2, 2)
 #endif
 
 /**
  * @brief   DMA stream used for ADC3 operations.
  */
 #if !defined(STM32_ADC_ADC3_DMA_STREAM) || defined(__DOXYGEN__)
-#define STM32_ADC_ADC3_DMA_STREAM        STM32_DMA_STREAM_ID(2, 1)
+#define STM32_ADC_ADC3_DMA_STREAM           STM32_DMA_STREAM_ID(2, 1)
 #endif
 
 /**
@@ -458,7 +462,7 @@ struct ADCDriver {
    */
   ADC_TypeDef               *adc;
   /**
-   * @brief Pointer to associated SMA channel.
+   * @brief Pointer to associated DMA channel.
    */
   const stm32_dma_stream_t  *dmastp;
   /**

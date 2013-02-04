@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -23,7 +23,7 @@
  */
 
 /**
- * @file    STM32/i2c_lld.h
+ * @file    STM32/I2Cv1/i2c_lld.h
  * @brief   STM32 I2C subsystem low level driver header.
  *
  * @addtogroup I2C

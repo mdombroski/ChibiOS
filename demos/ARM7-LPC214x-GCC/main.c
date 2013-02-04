@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -78,7 +78,7 @@ int main(void) {
   chSysInit();
 
   /*
-   * Activates the serial driver 2 using the driver default configuration.
+   * Activates the serial driver 1 using the driver default configuration.
    */
   sdStart(&SD1, NULL);
 
@@ -93,7 +93,8 @@ int main(void) {
 
   /*
    * Normal main() thread activity, in this demo it does nothing except
-   * sleeping in a loop and check the buttons state.
+   * sleeping in a loop and check the buttons state and run test procedure
+   * or print "Hello World!" on serial driver 1.
    */
   while (TRUE) {
     if (!palReadPad(IOPORT1, PA_BUTTON1))

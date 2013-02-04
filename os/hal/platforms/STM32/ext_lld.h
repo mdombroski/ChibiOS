@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -39,11 +39,6 @@
  * @brief   Available number of EXT channels.
  */
 #define EXT_MAX_CHANNELS    STM32_EXTI_NUM_CHANNELS
-
-/**
- * @brief   Mask of the available channels.
- */
-#define EXT_CHANNELS_MASK   ((1 << EXT_MAX_CHANNELS) - 1)
 
 /**
  * @name    STM32-specific EXT channel modes

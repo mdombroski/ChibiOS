@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -137,7 +137,7 @@ _IVOR10:
 #endif
         bl          chSchIsPreemptionRequired
         cmpli       cr0, %r3, 0
-        beq         cr0, .ctxrestore
+        beq         cr0, _ivor_exit
         bl          chSchDoReschedule
         b           _ivor_exit
 
@@ -216,7 +216,7 @@ _IVOR4:
         bl          chSchDoReschedule
 
         /* Context restore.*/
-        .globl
+        .globl      _ivor_exit
 _ivor_exit:
 #if CH_DBG_SYSTEM_STATE_CHECK
         bl          dbg_check_unlock

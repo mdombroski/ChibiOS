@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -151,7 +151,7 @@
 #define STM32_DMA_CR_MSIZE_BYTE     0
 #define STM32_DMA_CR_MSIZE_HWORD    DMA_SxCR_MSIZE_0
 #define STM32_DMA_CR_MSIZE_WORD     DMA_SxCR_MSIZE_1
-#define STM32_DMA_CR_SIZE_MASK      (STM32_DMA_CR_MSIZE_MASK |              \
+#define STM32_DMA_CR_SIZE_MASK      (STM32_DMA_CR_PSIZE_MASK |              \
                                      STM32_DMA_CR_MSIZE_MASK)
 #define STM32_DMA_CR_PL_MASK        DMA_SxCR_PL
 #define STM32_DMA_CR_PL(n)          ((n) << 16)

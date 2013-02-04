@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -20,7 +20,7 @@
 
 /**
  * @file    STM32F4xx/ext_lld_isr.c
- * @brief   STM32F4xx EXT subsystem low level driver ISR code.
+ * @brief   STM32F4xx/STM32F2xx EXT subsystem low level driver ISR code.
  *
  * @addtogroup EXT
  * @{

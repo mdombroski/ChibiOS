@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -36,8 +36,8 @@ _boot_address:
         /*
          * Stack setup.
          */
-        lis         %r1, __ram_end__@h
-        ori         %r1, %r1, __ram_end__@l
+        lis         %r1, __process_stack_end__@h
+        ori         %r1, %r1, __process_stack_end__@l
         li          %r0, 0
         stwu        %r0, -8(%r1)
         /*
@@ -45,7 +45,7 @@ _boot_address:
          */
         lis         %r4, __ivpr_base__@h
         ori         %r4, %r4, __ivpr_base__@l
-        mtIVPR      %r4    
+        mtIVPR      %r4
         /*
          * Small sections registers initialization.
          */
@@ -91,6 +91,10 @@ _boot_address:
         b           .dataloop
 .dataend:
         /*
+         * Late initialization.
+         */
+        bl          __late_init
+        /*
          * Main program invocation.
          */
         bl          main
@@ -106,12 +110,21 @@ _main_exit_handler:
         b           _main_exit_handler
 
         /*
-         * Default initialization code, none.
+         * Default early initialization code, none.
          */
         .weak       __early_init
         .globl      __early_init
         .type       __early_init, @function
 __early_init:
+        blr
+
+        /*
+         * Default late initialization code, none.
+         */
+        .weak       __late_init
+        .globl      __late_init
+        .type       __late_init, @function
+__late_init:
         blr
 
 #endif /* !defined(__DOXYGEN__) */

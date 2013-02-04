@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -36,10 +36,10 @@ void port_init(void) {
 #if PPC_SUPPORTS_IVORS
     /* The CPU support IVOR registers, the kernel requires IVOR4 and IVOR10
        and the initialization is performed here.*/
-    asm volatile ("li          %r3, _IVOR4@l        \t\n"
-                  "mtIVOR4     %r3                  \t\n"
-                  "li          %r3, _IVOR10@l       \t\n"
-                  "mtIVOR10    %r3" : : : "memory");
+    asm volatile ("li          %%r3, _IVOR4@l       \t\n"
+                  "mtIVOR4     %%r3                 \t\n"
+                  "li          %%r3, _IVOR10@l      \t\n"
+                  "mtIVOR10    %%r3" : : : "memory");
 #endif
 }
 

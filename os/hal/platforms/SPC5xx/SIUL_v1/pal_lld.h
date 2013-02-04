@@ -1,25 +1,19 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
-
-    This file is part of ChibiOS/RT.
-
-    ChibiOS/RT is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    ChibiOS/RT is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Licensed under ST Liberty SW License Agreement V2, (the "License");
+ * You may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *        http://www.st.com/software_license_agreement_liberty_v2
+ *
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 /**
- * @file    SPC5xx/SIUL_v1//pal_lld.h
+ * @file    SPC5xx/SIUL_v1/pal_lld.h
  * @brief   SPC5xx SIUL low level driver header.
  *
  * @addtogroup PAL
@@ -105,6 +99,11 @@
  */
 #define PAL_MODE_OUTPUT_OPENDRAIN       (PAL_SPC5_IBE | PAL_SPC5_OBE |      \
                                          PAL_SPC5_ODE)
+
+/**
+ * @brief   Alternate "n" output pad.
+ */
+#define PAL_MODE_OUTPUT_ALTERNATE(n)    (PAL_SPC5_IBE | PAL_SPC5_PA(n))
 /** @} */
 
 /*===========================================================================*/
@@ -114,18 +113,18 @@
 /**
  * @brief   Width, in bits, of an I/O port.
  */
-#define PAL_IOPORTS_WIDTH 32
+#define PAL_IOPORTS_WIDTH 16
 
 /**
  * @brief   Whole port mask.
  * @brief   This macro specifies all the valid bits into a port.
  */
-#define PAL_WHOLE_PORT ((ioportmask_t)0xFFFFFFFF)
+#define PAL_WHOLE_PORT ((ioportmask_t)0xFFFF)
 
 /**
  * @brief   Digital I/O port sized unsigned type.
  */
-typedef uint32_t ioportmask_t;
+typedef uint16_t ioportmask_t;
 
 /**
  * @brief   Digital I/O modes.
@@ -141,12 +140,13 @@ typedef uint16_t iomode_t;
 typedef uint32_t ioportid_t;
 
 /**
- * @brief   PCR register initializer type.
+ * @brief   SIUL register initializer type.
  */
 typedef struct {
-  uint16_t                  pcr_index;
+  uint8_t                   pcr_index;
+  uint8_t                   gpdo_value;
   iomode_t                  pcr_value;
-} spc560p_pcr_init_t;
+} spc_siu_init_t;
 
 /**
  * @brief   Generic I/O ports static initializer.
@@ -159,7 +159,7 @@ typedef struct {
  */
 typedef struct {
   iomode_t                  default_mode;
-  const spc560p_pcr_init_t  *pcrs;
+  const spc_siu_init_t      *inits;
   const uint8_t             *padsels;
 } PALConfig;
 
@@ -168,29 +168,59 @@ typedef struct {
 /*===========================================================================*/
 
 /**
- * @brief   I/O port 1 identifier.
+ * @brief   I/O port A identifier.
  */
-#define IOPORT1         0
+#define PORT_A          0
 
 /**
- * @brief   I/O port 2 identifier.
+ * @brief   I/O port B identifier.
  */
-#define IOPORT2         1
+#define PORT_B          1
 
 /**
- * @brief   I/O port 3 identifier.
+ * @brief   I/O port C identifier.
  */
-#define IOPORT3         2
+#define PORT_C          2
 
 /**
- * @brief   I/O port 4 identifier.
+ * @brief   I/O port D identifier.
  */
-#define IOPORT4         3
+#define PORT_D          3
+
+/**
+ * @brief   I/O port E identifier.
+ */
+#define PORT_E          4
+
+/**
+ * @brief   I/O port F identifier.
+ */
+#define PORT_F          5
+
+/**
+ * @brief   I/O port G identifier.
+ */
+#define PORT_G          6
+
+/**
+ * @brief   I/O port H identifier.
+ */
+#define PORT_H          7
 
 /*===========================================================================*/
 /* Implementation, some of the following macros could be implemented as      */
 /* functions, if so please put them in pal_lld.c.                            */
 /*===========================================================================*/
+
+/**
+ * @brief   Port bit helper macro.
+ * @note    Overrides the one in @p pal.h.
+ *
+ * @param[in] n         bit position within the port
+ *
+ * @return              The bit mask.
+ */
+#define PAL_PORT_BIT(n) ((ioportmask_t)(0x8000U >> (n)))
 
 /**
  * @brief   Low level PAL subsystem initialization.
@@ -209,7 +239,7 @@ typedef struct {
  *
  * @notapi
  */
-#define pal_lld_readport(port) (SIU.PGPDI[port].R)
+#define pal_lld_readport(port) (((volatile uint16_t *)SIU.PGPDI)[port])
 
 /**
  * @brief   Reads the output latch.
@@ -221,7 +251,7 @@ typedef struct {
  *
  * @notapi
  */
-#define pal_lld_readlatch(port) (SIU.PGPDO[port].R)
+#define pal_lld_readlatch(port) (((volatile uint16_t *)SIU.PGPDO)[port])
 
 /**
  * @brief   Writes a bits mask on a I/O port.
@@ -231,7 +261,35 @@ typedef struct {
  *
  * @notapi
  */
-#define pal_lld_writeport(port, bits) (SIU.PGPDO[port].R = (bits))
+#define pal_lld_writeport(port, bits)                                       \
+    (((volatile uint16_t *)SIU.PGPDO)[port] = (bits))
+
+/**
+ * @brief   Reads a group of bits.
+ *
+ * @param[in] port      port identifier
+ * @param[in] mask      group mask
+ * @param[in] offset    group bit offset within the port
+ * @return              The group logical states.
+ *
+ * @notapi
+ */
+#define pal_lld_readgroup(port, mask, offset)                               \
+  _pal_lld_readgroup(port, mask, offset)
+
+/**
+ * @brief   Writes a group of bits.
+ *
+ * @param[in] port      port identifier
+ * @param[in] mask      group mask
+ * @param[in] offset    group bit offset within the port
+ * @param[in] bits      bits to be written. Values exceeding the group width
+ *                      are masked.
+ *
+ * @notapi
+ */
+#define pal_lld_writegroup(port, mask, offset, bits)                        \
+  _pal_lld_writegroup(port, mask, offset, bits)
 
 /**
  * @brief   Pads group mode setup.
@@ -264,7 +322,7 @@ typedef struct {
  * @notapi
  */
 #define pal_lld_readpad(port, pad)                                          \
-  (SIU.GPDI.R[((port) * 32) + (15 - (pad))])
+  (SIU.GPDI[((port) * 16) + (pad)].R)
 
 /**
  * @brief   Writes a logical state on an output pad.
@@ -282,7 +340,43 @@ typedef struct {
  * @notapi
  */
 #define pal_lld_writepad(port, pad, bit)                                    \
-  (SIU.GPDO.R[((port) * 32) + (15 - (pad))] = (bit))
+  (SIU.GPDO[((port) * 16) + (pad)].R = (bit))
+
+/**
+ * @brief   Sets a pad logical state to @p PAL_HIGH.
+ *
+ * @param[in] port      port identifier
+ * @param[in] pad       pad number within the port
+ *
+ * @notapi
+ */
+#define pal_lld_setpad(port, pad)                                           \
+    (SIU.GPDO[((port) * 16) + (pad)].R = 1)
+
+/**
+ * @brief   Clears a pad logical state to @p PAL_LOW.
+ *
+ * @param[in] port      port identifier
+ * @param[in] pad       pad number within the port
+ *
+ * @notapi
+ */
+#define pal_lld_clearpad(port, pad)                                         \
+    (SIU.GPDO[((port) * 16) + (pad)].R = 0)
+
+/**
+ * @brief   Toggles a pad logical state.
+ * @note    The @ref PAL provides a default software implementation of this
+ *          functionality, implement this function if can optimize it by using
+ *          special hardware functionalities or special coding.
+ *
+ * @param[in] port      port identifier
+ * @param[in] pad       pad number within the port
+ *
+ * @notapi
+ */
+#define pal_lld_togglepad(port, pad)                                        \
+    (SIU.GPDO[((port) * 16) + (pad)].R = ~SIU.GPDO[((port) * 16) + (pad)].R)
 
 /**
  * @brief   Pad mode setup.
@@ -306,6 +400,13 @@ extern const PALConfig pal_default_config;
 extern "C" {
 #endif
   void _pal_lld_init(const PALConfig *config);
+  ioportmask_t _pal_lld_readgroup(ioportid_t port,
+                                  ioportmask_t mask,
+                                  uint_fast8_t offset);
+  void _pal_lld_writegroup(ioportid_t port,
+                           ioportmask_t mask,
+                           uint_fast8_t offset,
+                           ioportmask_t bits);
   void _pal_lld_setgroupmode(ioportid_t port,
                              ioportmask_t mask,
                              iomode_t mode);

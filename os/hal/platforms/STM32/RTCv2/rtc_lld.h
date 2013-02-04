@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -157,7 +157,7 @@ struct RTCWakeup {
    * @details Bits [15:0] contain value of WUTR register
    *          Bits [18:16] contain value of WUCKSEL bits in CR register
    *
-   * @notes   ((WUTR == 0) || (WUCKSEL == 3)) is forbidden combination.
+   * @note    ((WUTR == 0) || (WUCKSEL == 3)) is forbidden combination.
    */
   uint32_t wakeup;
 };

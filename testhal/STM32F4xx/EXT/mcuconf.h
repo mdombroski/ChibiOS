@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -162,6 +162,17 @@
 #define STM32_ICU_TIM4_IRQ_PRIORITY         7
 #define STM32_ICU_TIM5_IRQ_PRIORITY         7
 #define STM32_ICU_TIM8_IRQ_PRIORITY         7
+
+/*
+ * MAC driver system settings.
+ */
+#define STM32_MAC_TRANSMIT_BUFFERS          2
+#define STM32_MAC_RECEIVE_BUFFERS           4
+#define STM32_MAC_BUFFERS_SIZE              1522
+#define STM32_MAC_PHY_TIMEOUT               100
+#define STM32_MAC_ETH1_CHANGE_PHY_STATE     TRUE
+#define STM32_MAC_ETH1_IRQ_PRIORITY         13
+#define STM32_MAC_IP_CHECKSUM_OFFLOAD       0
 
 /*
  * PWM driver system settings.

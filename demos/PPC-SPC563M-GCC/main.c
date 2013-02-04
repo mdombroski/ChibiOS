@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -101,27 +101,22 @@ static msg_t Thread1(void *arg) {
   (void)arg;
   chRegSetThreadName("blinker");
 
-  SIU.GPDO[GPIO_LED1].R = 1;
-  SIU.GPDO[GPIO_LED2].R = 1;
-  SIU.GPDO[GPIO_LED3].R = 1;
-  SIU.GPDO[GPIO_LED4].R = 1;
-
   while (TRUE) {
-    SIU.GPDO[GPIO_LED1].R = 0;
+    palClearPad(PORT11, P11_LED1);
     chThdSleepMilliseconds(100);
-    SIU.GPDO[GPIO_LED2].R = 0;
+    palClearPad(PORT11, P11_LED2);
     chThdSleepMilliseconds(100);
-    SIU.GPDO[GPIO_LED3].R = 0;
+    palClearPad(PORT11, P11_LED3);
     chThdSleepMilliseconds(100);
-    SIU.GPDO[GPIO_LED4].R = 0;
+    palClearPad(PORT11, P11_LED4);
     chThdSleepMilliseconds(100);
-    SIU.GPDO[GPIO_LED1].R = 1;
+    palSetPad(PORT11, P11_LED1);
     chThdSleepMilliseconds(100);
-    SIU.GPDO[GPIO_LED2].R = 1;
+    palSetPad(PORT11, P11_LED2);
     chThdSleepMilliseconds(100);
-    SIU.GPDO[GPIO_LED3].R = 1;
+    palSetPad(PORT11, P11_LED3);
     chThdSleepMilliseconds(100);
-    SIU.GPDO[GPIO_LED4].R = 1;
+    palSetPad(PORT11, P11_LED4);
     chThdSleepMilliseconds(300);
   }
   return 0;

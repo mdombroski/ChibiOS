@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -30,6 +30,10 @@
 #include "hal.h"
 
 #if HAL_USE_ADC || defined(__DOXYGEN__)
+
+/*===========================================================================*/
+/* Driver local definitions.                                                 */
+/*===========================================================================*/
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -181,7 +185,7 @@ void adc_lld_stop(ADCDriver *adcp) {
  * @notapi
  */
 void adc_lld_start_conversion(ADCDriver *adcp) {
-  uint32_t mode, n;
+  uint32_t mode, n, cr2;
   const ADCConversionGroup *grpp = adcp->grpp;
 
   /* DMA setup.*/
@@ -203,7 +207,10 @@ void adc_lld_start_conversion(ADCDriver *adcp) {
 
   /* ADC setup.*/
   adcp->adc->CR1   = grpp->cr1 | ADC_CR1_SCAN;
-  adcp->adc->CR2   = grpp->cr2 | ADC_CR2_DMA | ADC_CR2_CONT | ADC_CR2_ADON;
+  cr2 = grpp->cr2 | ADC_CR2_DMA | ADC_CR2_ADON;
+  if ((cr2 & (ADC_CR2_EXTTRIG | ADC_CR2_JEXTTRIG)) == 0)
+    cr2 |= ADC_CR2_CONT;
+  adcp->adc->CR2   = grpp->cr2 | cr2;
   adcp->adc->SMPR1 = grpp->smpr1;
   adcp->adc->SMPR2 = grpp->smpr2;
   adcp->adc->SQR1  = grpp->sqr1;
@@ -211,7 +218,7 @@ void adc_lld_start_conversion(ADCDriver *adcp) {
   adcp->adc->SQR3  = grpp->sqr3;
 
   /* ADC start by writing ADC_CR2_ADON a second time.*/
-  adcp->adc->CR2   = grpp->cr2 | ADC_CR2_DMA | ADC_CR2_CONT | ADC_CR2_ADON;
+  adcp->adc->CR2   = cr2;
 }
 
 /**

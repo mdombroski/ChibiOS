@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -77,7 +77,7 @@
 /**
  * @brief   ADC1 driver enable switch.
  * @details If set to @p TRUE the support for ADC1 is included.
- * @note    The default is @p TRUE.
+ * @note    The default is @p FALSE.
  */
 #if !defined(STM32_ADC_USE_ADC1) || defined(__DOXYGEN__)
 #define STM32_ADC_USE_ADC1                  FALSE
@@ -289,7 +289,7 @@ struct ADCDriver {
    */
   ADC_TypeDef               *adc;
   /**
-   * @brief Pointer to associated SMA channel.
+   * @brief Pointer to associated DMA channel.
    */
   const stm32_dma_stream_t  *dmastp;
   /**

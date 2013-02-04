@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -68,7 +68,6 @@ typedef int32_t         cnt_t;          /**< Resources counter.             */
 
 /**
  * @brief   Packed structure modifier (before).
- * @note    Empty in this port.
  */
 #define PACK_STRUCT_BEGIN __packed
 

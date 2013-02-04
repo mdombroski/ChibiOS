@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -169,7 +169,7 @@ static void mbox1_execute(void) {
   msg1 = chMBPostI(&mb1, 'D');
   test_assert(25, msg1 == RDY_OK, "wrong wake-up message");
   msg1 = chMBPostI(&mb1, 'E');
-  chSysUnlock()
+  chSysUnlock();
   test_assert(26, msg1 == RDY_OK, "wrong wake-up message");
   test_assert(27, mb1.mb_rdptr == mb1.mb_wrptr, "pointers not aligned");
   for (i = 0; i < MB_SIZE; i++) {

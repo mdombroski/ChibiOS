@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    STM32/uart_lld.h
+ * @file    STM32/USARTv1/uart_lld.h
  * @brief   STM32 low level UART driver header.
  *
  * @addtogroup UART

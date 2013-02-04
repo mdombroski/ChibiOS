@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -103,7 +103,9 @@ void chSysInit(void) {
 #endif
   chSysEnable();
 
-  chRegSetThreadName("main");
+  /* Note, &ch_debug points to the string "main" if the registry is
+     active, else the parameter is ignored.*/
+  chRegSetThreadName((const char *)&ch_debug);
 
 #if !CH_NO_IDLE_THREAD
   /* This thread has the lowest priority in the system, its role is just to

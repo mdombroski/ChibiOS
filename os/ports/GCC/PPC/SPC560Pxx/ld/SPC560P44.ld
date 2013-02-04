@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -26,9 +26,9 @@ __process_stack_size__  = 0x0800;
 
 MEMORY
 {
-    flash     : org = 0x00000000, len = 512k
+    flash     : org = 0x00000000, len = 384k
     dataflash : org = 0x00800000, len = 64k
-    ram       : org = 0x40000000, len = 40k
+    ram       : org = 0x40000000, len = 36k
 }
 
 /*

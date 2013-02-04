@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -29,6 +29,7 @@
 #ifndef _HAL_H_
 #define _HAL_H_
 
+#include "ch.h"
 #include "board.h"
 #include "halconf.h"
 
