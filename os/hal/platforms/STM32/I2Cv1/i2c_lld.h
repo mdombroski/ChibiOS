@@ -355,7 +355,7 @@ typedef struct I2CDriver I2CDriver;
 /**
  * @brief Structure representing an I2C driver.
  */
-struct I2CDriver{
+struct I2CDriver {
   /**
    * @brief   Driver state.
    */
@@ -391,9 +391,13 @@ struct I2CDriver{
    */
   i2caddr_t                 addr;
   /**
-   * @brief     DMA mode bit mask.
+   * @brief RX DMA mode bit mask.
    */
-  uint32_t                  dmamode;
+  uint32_t                  rxdmamode;
+  /**
+   * @brief TX DMA mode bit mask.
+   */
+  uint32_t                  txdmamode;
   /**
    * @brief     Receive DMA channel.
    */

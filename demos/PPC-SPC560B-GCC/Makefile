@@ -20,7 +20,7 @@ endif
 
 # Enable this if you want the linker to remove unused code and data.
 ifeq ($(USE_LINK_GC),)
-  USE_LINK_GC = no
+  USE_LINK_GC = yes
 endif
 
 # If enabled, this option allows to compile the application in VLE mode.
@@ -46,7 +46,7 @@ PROJECT = ch
 
 # Imported source files
 CHIBIOS = ../..
-include $(CHIBIOS)/boards/GENERIC_SPC560BC/board.mk
+include $(CHIBIOS)/boards/ST_EVB_SPC560BC/board.mk
 include $(CHIBIOS)/os/hal/platforms/SPC560BCxx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/PPC/SPC560BCxx/port.mk
