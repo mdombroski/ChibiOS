@@ -78,6 +78,12 @@
 #define USB_EARLY_SET_ADDRESS               0
 #define USB_LATE_SET_ADDRESS                1
 
+#define USB_EP0_STATUS_STAGE_SW             0
+#define USB_EP0_STATUS_STAGE_HW             1
+
+#define USB_SET_ADDRESS_ACK_SW              0
+#define USB_SET_ADDRESS_ACK_HW              1
+
 /**
  * @name    Helper macros for USB descriptors
  * @{
@@ -102,7 +108,7 @@
 /**
  * @brief   Helper macro for BCD values into descriptor strings.
  */
-#define USB_DESC_BCD(bcd)                                                  \
+#define USB_DESC_BCD(bcd)                                                   \
   (uint8_t)((bcd) & 255),                                                   \
   (uint8_t)(((bcd) >> 8) & 255)
 
@@ -249,7 +255,8 @@ typedef enum {
  */
 typedef enum {
   USB_EP0_WAITING_SETUP,                /**< Waiting for SETUP data.        */
-  USB_EP0_TX,                           /**< Trasmitting.                   */
+  USB_EP0_TX,                           /**< Transmitting.                  */
+  USB_EP0_WAITING_TX0,                  /**< Waiting transmit 0.            */
   USB_EP0_WAITING_STS,                  /**< Waiting status.                */
   USB_EP0_RX,                           /**< Receiving.                     */
   USB_EP0_SENDING_STS,                  /**< Sending status.                */
@@ -318,7 +325,7 @@ typedef void (*usbeventcb_t)(USBDriver *usbp, usbevent_t event);
  * @retval FALSE        Request not recognized by the handler.
  * @retval TRUE         Request handled.
  */
-typedef bool_t (*usbreqhandler_t)(USBDriver *usbp);
+typedef bool (*usbreqhandler_t)(USBDriver *usbp);
 
 /**
  * @brief   Type of an USB descriptor-retrieving callback.
@@ -549,13 +556,13 @@ extern "C" {
   void usbPrepareTransmit(USBDriver *usbp, usbep_t ep,
                           const uint8_t *buf, size_t n);
   void usbPrepareQueuedReceive(USBDriver *usbp, usbep_t ep,
-                               InputQueue *iqp, size_t n);
+                               input_queue_t *iqp, size_t n);
   void usbPrepareQueuedTransmit(USBDriver *usbp, usbep_t ep,
-                                OutputQueue *oqp, size_t n);
-  bool_t usbStartReceiveI(USBDriver *usbp, usbep_t ep);
-  bool_t usbStartTransmitI(USBDriver *usbp, usbep_t ep);
-  bool_t usbStallReceiveI(USBDriver *usbp, usbep_t ep);
-  bool_t usbStallTransmitI(USBDriver *usbp, usbep_t ep);
+                                output_queue_t *oqp, size_t n);
+  bool usbStartReceiveI(USBDriver *usbp, usbep_t ep);
+  bool usbStartTransmitI(USBDriver *usbp, usbep_t ep);
+  bool usbStallReceiveI(USBDriver *usbp, usbep_t ep);
+  bool usbStallTransmitI(USBDriver *usbp, usbep_t ep);
   void _usb_reset(USBDriver *usbp);
   void _usb_ep0setup(USBDriver *usbp, usbep_t ep);
   void _usb_ep0in(USBDriver *usbp, usbep_t ep);

@@ -76,6 +76,45 @@ typedef void (*gptcallback_t)(GPTDriver *gptp);
 /* Driver macros.                                                            */
 /*===========================================================================*/
 
+/**
+ * @brief   Changes the interval of GPT peripheral.
+ * @details This function changes the interval of a running GPT unit.
+ * @pre     The GPT unit must be running in continuous mode.
+ * @post    The GPT unit interval is changed to the new value.
+ *
+ * @param[in] gptp      pointer to a @p GPTDriver object
+ * @param[in] interval  new cycle time in timer ticks
+ *
+ * @iclass
+ */
+#define gptChangeIntervalI(gptp, interval) {                                \
+  gpt_lld_change_interval(gptp, interval);                                  \
+}
+
+/**
+ * @brief   Returns the interval of GPT peripheral.
+ * @pre     The GPT unit must be running in continuous mode.
+ *
+ * @param[in] gptp      pointer to a @p GPTDriver object
+ * @return              The current interval.
+ *
+ * @xclass
+ */
+#define gptGetIntervalX(gptp) gpt_lld_get_interval(gptp)
+
+/**
+ * @brief   Returns the counter value of GPT peripheral.
+ * @pre     The GPT unit must be running in continuous mode.
+ * @note    The nature of the counter is not defined, it may count upward
+ *          or downward, it could be continuously running or not.
+ *
+ * @param[in] gptp      pointer to a @p GPTDriver object
+ * @return              The current counter value.
+ *
+ * @xclass
+ */
+#define gptGetCounterX(gptp) gpt_lld_get_counter(gptp)
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -89,6 +128,7 @@ extern "C" {
   void gptStop(GPTDriver *gptp);
   void gptStartContinuous(GPTDriver *gptp, gptcnt_t interval);
   void gptStartContinuousI(GPTDriver *gptp, gptcnt_t interval);
+  void gptChangeInterval(GPTDriver *gptp, gptcnt_t interval);
   void gptStartOneShot(GPTDriver *gptp, gptcnt_t interval);
   void gptStartOneShotI(GPTDriver *gptp, gptcnt_t interval);
   void gptStopTimer(GPTDriver *gptp);

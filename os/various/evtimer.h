@@ -1,21 +1,17 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012,2013 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
 
-    This file is part of ChibiOS/RT.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    ChibiOS/RT is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    ChibiOS/RT is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 */
 
 /**
@@ -29,42 +25,68 @@
 #ifndef _EVTIMER_H_
 #define _EVTIMER_H_
 
+/*===========================================================================*/
+/* Module constants.                                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module pre-compile time settings.                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Derived constants and error checks.                                       */
+/*===========================================================================*/
 
 /*
  * Module dependencies check.
  */
-#if !CH_USE_EVENTS
-#error "Event Timers require CH_USE_EVENTS"
+#if !CH_CFG_USE_EVENTS
+#error "Event Timers require CH_CFG_USE_EVENTS"
 #endif
 
+/*===========================================================================*/
+/* Module data structures and types.                                         */
+/*===========================================================================*/
+
 /**
- * @brief Event timer structure.
+ * @brief   Type of a event timer structure.
  */
 typedef struct {
-  VirtualTimer  et_vt;
-  EventSource   et_es;
-  systime_t     et_interval;
-} EvTimer;
+  virtual_timer_t       et_vt;
+  event_source_t        et_es;
+  systime_t             et_interval;
+} event_timer_t;
+
+/*===========================================================================*/
+/* Module macros.                                                            */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void evtStart(EvTimer *etp);
-  void evtStop(EvTimer *etp);
+  void evtObjectInit(event_timer_t *etp, systime_t time);
+  void evtStart(event_timer_t *etp);
 #ifdef __cplusplus
 }
 #endif
 
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
+
 /**
- * @brief Initializes an @p EvTimer structure.
+ * @brief   Stops the timer.
+ * @details If the timer was already stopped then the function has no effect.
  *
- * @param etp the EvTimer structure to be initialized
- * @param time the interval in system ticks
+ * @param[in] etp       pointer to an initialized @p event_timer_t structure.
  */
-#define evtInit(etp, time) {                                            \
-  chEvtInit(&(etp)->et_es);                                             \
-  (etp)->et_vt.vt_func = NULL;                                          \
-  (etp)->et_interval = (time);                                          \
+static inline void vevtStop(event_timer_t *etp) {
+
+  chVTReset(&etp->et_vt);
 }
 
 #endif /* _EVTIMER_H_ */

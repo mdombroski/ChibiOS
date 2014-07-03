@@ -118,8 +118,8 @@ typedef void (*pwmcallback_t)(PWMDriver *pwmp);
  * @api
  */
 #define PWM_FRACTION_TO_WIDTH(pwmp, denominator, numerator)                 \
-  ((uint16_t)((((uint32_t)(pwmp)->period) *                                 \
-               (uint32_t)(numerator)) / (uint32_t)(denominator)))
+  ((pwmcnt_t)((((pwmcnt_t)(pwmp)->period) *                                 \
+               (pwmcnt_t)(numerator)) / (pwmcnt_t)(denominator)))
 
 /**
  * @brief   Converts from degrees to pulse width.
@@ -211,6 +211,18 @@ typedef void (*pwmcallback_t)(PWMDriver *pwmp);
  */
 #define pwmDisableChannelI(pwmp, channel)                                   \
   pwm_lld_disable_channel(pwmp, channel)
+
+/**
+ * @brief   Returns a PWM channel status.
+ * @pre     The PWM unit must have been activated using @p pwmStart().
+ *
+ * @param[in] pwmp      pointer to a @p PWMDriver object
+ * @param[in] channel   PWM channel identifier (0...PWM_CHANNELS-1)
+ *
+ * @iclass
+ */
+#define pwmIsChannelEnabledI(pwmp, channel)                                 \
+  pwm_lld_is_channel_enabled(pwmp, channel)
 /** @} */
 
 /*===========================================================================*/

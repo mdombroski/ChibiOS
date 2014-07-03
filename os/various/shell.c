@@ -1,21 +1,17 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012,2013 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
 
-    This file is part of ChibiOS/RT.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    ChibiOS/RT is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    ChibiOS/RT is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 */
 
 /**
@@ -36,7 +32,7 @@
 /**
  * @brief   Shell termination event source.
  */
-EventSource shell_terminated;
+event_source_t shell_terminated;
 
 static char *_strtok(char *str, const char *delim, char **saveptr) {
   char *token;
@@ -77,15 +73,15 @@ static void cmd_info(BaseSequentialStream *chp, int argc, char *argv[]) {
   }
 
   chprintf(chp, "Kernel:       %s\r\n", CH_KERNEL_VERSION);
-#ifdef CH_COMPILER_NAME
-  chprintf(chp, "Compiler:     %s\r\n", CH_COMPILER_NAME);
+#ifdef PORT_COMPILER_NAME
+  chprintf(chp, "Compiler:     %s\r\n", PORT_COMPILER_NAME);
 #endif
-  chprintf(chp, "Architecture: %s\r\n", CH_ARCHITECTURE_NAME);
-#ifdef CH_CORE_VARIANT_NAME
-  chprintf(chp, "Core Variant: %s\r\n", CH_CORE_VARIANT_NAME);
+  chprintf(chp, "Architecture: %s\r\n", PORT_ARCHITECTURE_NAME);
+#ifdef PORT_CORE_VARIANT_NAME
+  chprintf(chp, "Core Variant: %s\r\n", PORT_CORE_VARIANT_NAME);
 #endif
-#ifdef CH_PORT_INFO
-  chprintf(chp, "Port Info:    %s\r\n", CH_PORT_INFO);
+#ifdef PORT_INFO
+  chprintf(chp, "Port Info:    %s\r\n", PORT_INFO);
 #endif
 #ifdef PLATFORM_NAME
   chprintf(chp, "Platform:     %s\r\n", PLATFORM_NAME);
@@ -107,7 +103,7 @@ static void cmd_systime(BaseSequentialStream *chp, int argc, char *argv[]) {
     usage(chp, "systime");
     return;
   }
-  chprintf(chp, "%lu\r\n", (unsigned long)chTimeNow());
+  chprintf(chp, "%lu\r\n", (unsigned long)chVTGetSystemTime());
 }
 
 /**
@@ -119,7 +115,7 @@ static ShellCommand local_commands[] = {
   {NULL, NULL}
 };
 
-static bool_t cmdexec(const ShellCommand *scp, BaseSequentialStream *chp,
+static bool cmdexec(const ShellCommand *scp, BaseSequentialStream *chp,
                       char *name, int argc, char *argv[]) {
 
   while (scp->sc_name != NULL) {
@@ -137,12 +133,11 @@ static bool_t cmdexec(const ShellCommand *scp, BaseSequentialStream *chp,
  *
  * @param[in] p         pointer to a @p BaseSequentialStream object
  * @return              Termination reason.
- * @retval RDY_OK       terminated by command.
- * @retval RDY_RESET    terminated by reset condition on the I/O channel.
+ * @retval MSG_OK       terminated by command.
+ * @retval MSG_RESET    terminated by reset condition on the I/O channel.
  */
 static msg_t shell_thread(void *p) {
   int n;
-  msg_t msg = RDY_OK;
   BaseSequentialStream *chp = ((ShellConfig *)p)->sc_channel;
   const ShellCommand *scp = ((ShellConfig *)p)->sc_commands;
   char *lp, *cmd, *tokp, line[SHELL_MAX_LINE_LENGTH];
@@ -194,34 +189,53 @@ static msg_t shell_thread(void *p) {
       }
     }
   }
+  shellExit(MSG_OK);
+  /* Never executed, silencing a warning.*/
+  return 0;
+}
+
+/**
+ * @brief   Shell manager initialization.
+ *
+ * @api
+ */
+void shellInit(void) {
+
+  chEvtObjectInit(&shell_terminated);
+}
+
+/**
+ * @brief   Terminates the shell.
+ * @note    Must be invoked from the command handlers.
+ * @note    Does not return.
+ *
+ * @param[in] msg       shell exit code
+ *
+ * @api
+ */
+void shellExit(msg_t msg) {
+
   /* Atomically broadcasting the event source and terminating the thread,
      there is not a chSysUnlock() because the thread terminates upon return.*/
   chSysLock();
   chEvtBroadcastI(&shell_terminated);
   chThdExitS(msg);
-  return 0; /* Never executed.*/
-}
-
-/**
- * @brief   Shell manager initialization.
- */
-void shellInit(void) {
-
-  chEvtInit(&shell_terminated);
 }
 
 /**
  * @brief   Spawns a new shell.
- * @pre     @p CH_USE_MALLOC_HEAP and @p CH_USE_DYNAMIC must be enabled.
+ * @pre     @p CH_CFG_USE_HEAP and @p CH_CFG_USE_DYNAMIC must be enabled.
  *
  * @param[in] scp       pointer to a @p ShellConfig object
  * @param[in] size      size of the shell working area to be allocated
  * @param[in] prio      priority level for the new shell
  * @return              A pointer to the shell thread.
  * @retval NULL         thread creation failed because memory allocation.
+ *
+ * @api
  */
-#if CH_USE_HEAP && CH_USE_DYNAMIC
-Thread *shellCreate(const ShellConfig *scp, size_t size, tprio_t prio) {
+#if CH_CFG_USE_HEAP && CH_CFG_USE_DYNAMIC
+thread_t *shellCreate(const ShellConfig *scp, size_t size, tprio_t prio) {
 
   return chThdCreateFromHeap(NULL, size, prio, shell_thread, (void *)scp);
 }
@@ -235,9 +249,11 @@ Thread *shellCreate(const ShellConfig *scp, size_t size, tprio_t prio) {
  * @param[in] size      size of the shell working area
  * @param[in] prio      priority level for the new shell
  * @return              A pointer to the shell thread.
+ *
+ * @api
  */
-Thread *shellCreateStatic(const ShellConfig *scp, void *wsp,
-                          size_t size, tprio_t prio) {
+thread_t *shellCreateStatic(const ShellConfig *scp, void *wsp,
+                            size_t size, tprio_t prio) {
 
   return chThdCreateStatic(wsp, size, prio, shell_thread, (void *)scp);
 }
@@ -251,8 +267,10 @@ Thread *shellCreateStatic(const ShellConfig *scp, void *wsp,
  * @return              The operation status.
  * @retval TRUE         the channel was reset or CTRL-D pressed.
  * @retval FALSE        operation successful.
+ *
+ * @api
  */
-bool_t shellGetLine(BaseSequentialStream *chp, char *line, unsigned size) {
+bool shellGetLine(BaseSequentialStream *chp, char *line, unsigned size) {
   char *p = line;
 
   while (TRUE) {

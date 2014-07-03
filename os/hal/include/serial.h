@@ -79,10 +79,6 @@
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
-#if !CH_USE_QUEUES && !CH_USE_EVENTS
-#error "Serial Driver requires CH_USE_QUEUES and CH_USE_EVENTS"
-#endif
-
 /*===========================================================================*/
 /* Driver data structures and types.                                         */
 /*===========================================================================*/
@@ -145,12 +141,11 @@ struct SerialDriver {
  *          checks directly the output queue. This is faster but cannot
  *          be used to check different channels implementations.
  *
- * @see     chIOPutWouldBlock()
  * @deprecated
  *
  * @api
  */
-#define sdPutWouldBlock(sdp) chOQIsFullI(&(sdp)->oqueue)
+#define sdPutWouldBlock(sdp) oqIsFullI(&(sdp)->oqueue)
 
 /**
  * @brief   Direct input check on a @p SerialDriver.
@@ -158,12 +153,11 @@ struct SerialDriver {
  *          checks directly the input queue. This is faster but cannot
  *          be used to check different channels implementations.
  *
- * @see     chIOGetWouldBlock()
  * @deprecated
  *
  * @api
  */
-#define sdGetWouldBlock(sdp) chIQIsEmptyI(&(sdp)->iqueue)
+#define sdGetWouldBlock(sdp) iqIsEmptyI(&(sdp)->iqueue)
 
 /**
  * @brief   Direct write to a @p SerialDriver.
@@ -171,11 +165,11 @@ struct SerialDriver {
  *          writes directly on the output queue. This is faster but cannot
  *          be used to write to different channels implementations.
  *
- * @see     chIOPut()
+ * @see     chnPutTimeout()
  *
  * @api
  */
-#define sdPut(sdp, b) chOQPut(&(sdp)->oqueue, b)
+#define sdPut(sdp, b) oqPut(&(sdp)->oqueue, b)
 
 /**
  * @brief   Direct write to a @p SerialDriver with timeout specification.
@@ -183,11 +177,11 @@ struct SerialDriver {
  *          writes directly on the output queue. This is faster but cannot
  *          be used to write to different channels implementations.
  *
- * @see     chIOPutTimeout()
+ * @see     chnPutTimeout()
  *
  * @api
  */
-#define sdPutTimeout(sdp, b, t) chOQPutTimeout(&(sdp)->oqueue, b, t)
+#define sdPutTimeout(sdp, b, t) oqPutTimeout(&(sdp)->oqueue, b, t)
 
 /**
  * @brief   Direct read from a @p SerialDriver.
@@ -195,11 +189,11 @@ struct SerialDriver {
  *          reads directly from the input queue. This is faster but cannot
  *          be used to read from different channels implementations.
  *
- * @see     chIOGet()
+ * @see     chnGetTimeout()
  *
  * @api
  */
-#define sdGet(sdp) chIQGet(&(sdp)->iqueue)
+#define sdGet(sdp) iqGet(&(sdp)->iqueue)
 
 /**
  * @brief   Direct read from a @p SerialDriver with timeout specification.
@@ -207,11 +201,11 @@ struct SerialDriver {
  *          reads directly from the input queue. This is faster but cannot
  *          be used to read from different channels implementations.
  *
- * @see     chIOGetTimeout()
+ * @see     chnGetTimeout()
  *
  * @api
  */
-#define sdGetTimeout(sdp, t) chIQGetTimeout(&(sdp)->iqueue, t)
+#define sdGetTimeout(sdp, t) iqGetTimeout(&(sdp)->iqueue, t)
 
 /**
  * @brief   Direct blocking write to a @p SerialDriver.
@@ -219,12 +213,12 @@ struct SerialDriver {
  *          writes directly to the output queue. This is faster but cannot
  *          be used to write from different channels implementations.
  *
- * @see     chIOWriteTimeout()
+ * @see     chnWrite()
  *
  * @api
  */
 #define sdWrite(sdp, b, n)                                                  \
-  chOQWriteTimeout(&(sdp)->oqueue, b, n, TIME_INFINITE)
+  oqWriteTimeout(&(sdp)->oqueue, b, n, TIME_INFINITE)
 
 /**
  * @brief   Direct blocking write to a @p SerialDriver with timeout
@@ -233,12 +227,12 @@ struct SerialDriver {
  *          writes directly to the output queue. This is faster but cannot
  *          be used to write to different channels implementations.
  *
- * @see     chIOWriteTimeout()
+ * @see     chnWriteTimeout()
  *
  * @api
  */
 #define sdWriteTimeout(sdp, b, n, t)                                        \
-  chOQWriteTimeout(&(sdp)->oqueue, b, n, t)
+  oqWriteTimeout(&(sdp)->oqueue, b, n, t)
 
 /**
  * @brief   Direct non-blocking write to a @p SerialDriver.
@@ -246,12 +240,12 @@ struct SerialDriver {
  *          writes directly to the output queue. This is faster but cannot
  *          be used to write to different channels implementations.
  *
- * @see     chIOWriteTimeout()
+ * @see     chnWriteTimeout()
  *
  * @api
  */
 #define sdAsynchronousWrite(sdp, b, n)                                      \
-  chOQWriteTimeout(&(sdp)->oqueue, b, n, TIME_IMMEDIATE)
+  oqWriteTimeout(&(sdp)->oqueue, b, n, TIME_IMMEDIATE)
 
 /**
  * @brief   Direct blocking read from a @p SerialDriver.
@@ -259,12 +253,12 @@ struct SerialDriver {
  *          reads directly from the input queue. This is faster but cannot
  *          be used to read from different channels implementations.
  *
- * @see     chIOReadTimeout()
+ * @see     chnRead()
  *
  * @api
  */
 #define sdRead(sdp, b, n)                                                   \
-  chIQReadTimeout(&(sdp)->iqueue, b, n, TIME_INFINITE)
+  iqReadTimeout(&(sdp)->iqueue, b, n, TIME_INFINITE)
 
 /**
  * @brief   Direct blocking read from a @p SerialDriver with timeout
@@ -273,12 +267,12 @@ struct SerialDriver {
  *          reads directly from the input queue. This is faster but cannot
  *          be used to read from different channels implementations.
  *
- * @see     chIOReadTimeout()
+ * @see     chnReadTimeout()
  *
  * @api
  */
 #define sdReadTimeout(sdp, b, n, t)                                         \
-  chIQReadTimeout(&(sdp)->iqueue, b, n, t)
+  iqReadTimeout(&(sdp)->iqueue, b, n, t)
 
 /**
  * @brief   Direct non-blocking read from a @p SerialDriver.
@@ -286,12 +280,12 @@ struct SerialDriver {
  *          reads directly from the input queue. This is faster but cannot
  *          be used to read from different channels implementations.
  *
- * @see     chIOReadTimeout()
+ * @see     chnReadTimeout()
  *
  * @api
  */
 #define sdAsynchronousRead(sdp, b, n)                                       \
-  chIQReadTimeout(&(sdp)->iqueue, b, n, TIME_IMMEDIATE)
+  iqReadTimeout(&(sdp)->iqueue, b, n, TIME_IMMEDIATE)
 /** @} */
 
 /*===========================================================================*/

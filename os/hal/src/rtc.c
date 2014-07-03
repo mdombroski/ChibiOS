@@ -30,7 +30,6 @@
  * @{
  */
 
-#include "ch.h"
 #include "hal.h"
 
 #if HAL_USE_RTC || defined(__DOXYGEN__)
@@ -71,34 +70,34 @@ void rtcInit(void) {
  * @brief   Set current time.
  *
  * @param[in] rtcp      pointer to RTC driver structure
- * @param[in] timespec  pointer to a @p RTCTime structure
+ * @param[in] timespec  pointer to a @p RTCDateTime structure
  *
  * @api
  */
-void rtcSetTime(RTCDriver *rtcp, const RTCTime *timespec) {
+void rtcSetTime(RTCDriver *rtcp, const RTCDateTime *timespec) {
 
-  chDbgCheck((rtcp != NULL) && (timespec != NULL), "rtcSetTime");
+  osalDbgCheck((rtcp != NULL) && (timespec != NULL));
 
-  chSysLock();
+  osalSysLock();
   rtcSetTimeI(rtcp, timespec);
-  chSysUnlock();
+  osalSysUnlock();
 }
 
 /**
  * @brief   Get current time.
  *
  * @param[in] rtcp      pointer to RTC driver structure
- * @param[out] timespec pointer to a @p RTCTime structure
+ * @param[out] timespec pointer to a @p RTCDateTime structure
  *
  * @api
  */
-void rtcGetTime(RTCDriver *rtcp, RTCTime *timespec) {
+void rtcGetTime(RTCDriver *rtcp, RTCDateTime *timespec) {
 
-  chDbgCheck((rtcp != NULL) && (timespec != NULL), "rtcGetTime");
+  osalDbgCheck((rtcp != NULL) && (timespec != NULL));
 
-  chSysLock();
+  osalSysLock();
   rtcGetTimeI(rtcp, timespec);
-  chSysUnlock();
+  osalSysUnlock();
 }
 
 #if (RTC_ALARMS > 0) || defined(__DOXYGEN__)
@@ -115,11 +114,11 @@ void rtcSetAlarm(RTCDriver *rtcp,
                  rtcalarm_t alarm,
                  const RTCAlarm *alarmspec) {
 
-  chDbgCheck((rtcp != NULL) && (alarm < RTC_ALARMS), "rtcSetAlarm");
+  osalDbgCheck((rtcp != NULL) && (alarm < RTC_ALARMS));
 
-  chSysLock();
+  osalSysLock();
   rtcSetAlarmI(rtcp, alarm, alarmspec);
-  chSysUnlock();
+  osalSysUnlock();
 }
 
 /**
@@ -137,12 +136,11 @@ void rtcGetAlarm(RTCDriver *rtcp,
                  rtcalarm_t alarm,
                  RTCAlarm *alarmspec) {
 
-  chDbgCheck((rtcp != NULL) && (alarm < RTC_ALARMS) && (alarmspec != NULL),
-             "rtcGetAlarm");
+  osalDbgCheck((rtcp != NULL) && (alarm < RTC_ALARMS) && (alarmspec != NULL));
 
-  chSysLock();
+  osalSysLock();
   rtcGetAlarmI(rtcp, alarm, alarmspec);
-  chSysUnlock();
+  osalSysUnlock();
 }
 #endif /* RTC_ALARMS > 0 */
 
@@ -159,26 +157,28 @@ void rtcGetAlarm(RTCDriver *rtcp,
  */
 void rtcSetCallback(RTCDriver *rtcp, rtccb_t callback) {
 
-  chDbgCheck((rtcp != NULL), "rtcSetCallback");
+  osalDbgCheck(rtcp != NULL);
 
-  chSysLock();
+  osalSysLock();
   rtcSetCallbackI(rtcp, callback);
-  chSysUnlock();
+  osalSysUnlock();
 }
 #endif /* RTC_SUPPORTS_CALLBACKS */
 
 /**
- * @brief   Get current time in format suitable for usage in FatFS.
+ * @brief   Get current time in format suitable for usage in FAT file system.
  *
- * @param[in] rtcp      pointer to RTC driver structure
- * @return              FAT time value.
+ * @param[out] timespec pointer to a @p RTCDateTime structure
+ * @return              FAT date/time value.
  *
  * @api
  */
-uint32_t rtcGetTimeFat(RTCDriver *rtcp) {
+uint32_t rtcConvertDateTimeToFAT(RTCDateTime *timespec) {
 
-  chDbgCheck((rtcp != NULL), "rtcSetTime");
-  return rtc_lld_get_time_fat(rtcp);
+  osalDbgCheck(timespec != NULL);
+
+  /* TODO: Implement.*/
+  return 0;
 }
 
 #endif /* HAL_USE_RTC */

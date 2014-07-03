@@ -40,15 +40,29 @@
 /*===========================================================================*/
 
 /**
- * @name    Date/Time bit masks
+ * @name    Date/Time bit masks for FAT format
  * @{
  */
-#define RTC_TIME_SECONDS_MASK   0x0000001F  /* @brief Seconds mask.         */
-#define RTC_TIME_MINUTES_MASK   0x000007E0  /* @brief Minutes mask.         */
-#define RTC_TIME_HOURS_MASK     0x0000F800  /* @brief Hours mask.           */
-#define RTC_DATE_DAYS_MASK      0x001F0000  /* @brief Days mask.            */
-#define RTC_DATE_MONTHS_MASK    0x01E00000  /* @brief Months mask.          */
-#define RTC_DATE_YEARS_MASK     0xFE000000  /* @brief Years mask.           */
+#define RTC_FAT_TIME_SECONDS_MASK   0x0000001F
+#define RTC_FAT_TIME_MINUTES_MASK   0x000007E0
+#define RTC_FAT_TIME_HOURS_MASK     0x0000F800
+#define RTC_FAT_DATE_DAYS_MASK      0x001F0000
+#define RTC_FAT_DATE_MONTHS_MASK    0x01E00000
+#define RTC_FAT_DATE_YEARS_MASK     0xFE000000
+/** @} */
+
+/**
+ * @name    Day of week encoding
+ * @{
+ */
+#define RTC_DAY_CATURDAY            0
+#define RTC_DAY_MONDAY              1
+#define RTC_DAY_TUESDAY             2
+#define RTC_DAY_WEDNESDAY           3
+#define RTC_DAY_THURSDAY            4
+#define RTC_DAY_FRIDAY              5
+#define RTC_DAY_SATURDAY            6
+#define RTC_DAY_SUNDAY              7
 /** @} */
 
 /*===========================================================================*/
@@ -69,9 +83,16 @@
 typedef struct RTCDriver RTCDriver;
 
 /**
- * @brief   Type of a structure representing an RTC time stamp.
+ * @brief   Type of a structure representing an RTC date/time stamp.
  */
-typedef struct RTCTime RTCTime;
+typedef struct {
+  uint32_t      year:8;
+  uint32_t      month: 4;
+  uint32_t      dstflag: 1;
+  uint32_t      dayofweek: 3;
+  uint32_t      day: 5;
+  uint32_t      millisecond: 27;
+} RTCDateTime;
 
 #include "rtc_lld.h"
 
@@ -83,7 +104,7 @@ typedef struct RTCTime RTCTime;
  * @brief   Set current time.
  *
  * @param[in] rtcp      pointer to RTC driver structure
- * @param[in] timespec  pointer to a @p RTCTime structure
+ * @param[in] timespec  pointer to a @p RTCDateTime structure
  *
  * @iclass
  */
@@ -93,7 +114,7 @@ typedef struct RTCTime RTCTime;
  * @brief   Get current time.
  *
  * @param[in] rtcp      pointer to RTC driver structure
- * @param[out] timespec pointer to a @p RTCTime structure
+ * @param[out] timespec pointer to a @p RTCDateTime structure
  *
  * @iclass
  */
@@ -149,18 +170,18 @@ typedef struct RTCTime RTCTime;
 extern "C" {
 #endif
   void rtcInit(void);
-  void rtcSetTime(RTCDriver *rtcp, const RTCTime *timespec);
-  void rtcGetTime(RTCDriver *rtcp, RTCTime *timespec);
-#if RTC_ALARMS > 0
+  void rtcSetTime(RTCDriver *rtcp, const RTCDateTime *timespec);
+  void rtcGetTime(RTCDriver *rtcp, RTCDateTime *timespec);
+#if STM32_RTC_NUM_ALARMS > 0
   void rtcSetAlarm(RTCDriver *rtcp,
                    rtcalarm_t alarm,
                    const RTCAlarm *alarmspec);
   void rtcGetAlarm(RTCDriver *rtcp, rtcalarm_t alarm, RTCAlarm *alarmspec);
 #endif
-  uint32_t rtcGetTimeFat(RTCDriver *rtcp);
 #if RTC_SUPPORTS_CALLBACKS
   void rtcSetCallback(RTCDriver *rtcp, rtccb_t callback);
 #endif
+  uint32_t rtcConvertDateTimeToFAT(RTCDateTime *timespec);
 #ifdef __cplusplus
 }
 #endif
